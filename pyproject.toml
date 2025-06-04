@@ -1,0 +1,15 @@
+[project]
+name = "kb-management"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "kb_ingestion",
+]
+
+[tool.uv.sources]
+kb_ingestion = { workspace = true }
+
+[tool.uv.workspace]
+members = [
+    "packages/kb_ingestion",
+]
