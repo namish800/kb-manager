@@ -6,6 +6,7 @@ requires-python = ">=3.12"
 members = [
     "kb-ingestion",
     "kb-management",
+    "kb-retriever",
 ]
 
 [[package]]
@@ -521,10 +522,29 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "kb-ingestion" },
+    { name = "kb-retriever" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "kb-ingestion", editable = "packages/kb_ingestion" }]
+requires-dist = [
+    { name = "kb-ingestion", editable = "packages/kb_ingestion" },
+    { name = "kb-retriever", editable = "packages/kb_retriever" },
+]
+
+[[package]]
+name = "kb-retriever"
+version = "0.1.0"
+source = { editable = "packages/kb_retriever" }
+dependencies = [
+    { name = "llama-index" },
+    { name = "llama-index-vector-stores-pinecone" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "llama-index", specifier = ">=0.12.40" },
+    { name = "llama-index-vector-stores-pinecone", specifier = ">=0.4.5" },
+]
 
 [[package]]
 name = "llama-cloud"
@@ -596,16 +616,16 @@ wheels = [
 
 [[package]]
 name = "llama-index-cli"
-version = "0.4.2"
+version = "0.4.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "llama-index-core" },
     { name = "llama-index-embeddings-openai" },
     { name = "llama-index-llms-openai" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ce/aa/b9827d539299ea5b056033f556e4dc8612587415148b4d9c948d3b7b5fd0/llama_index_cli-0.4.2.tar.gz", hash = "sha256:c60c5becc412b9d5d4eb58cbb8efd41363e45cb866f21a65c887f8fee9276443", size = 24423, upload-time = "2025-05-30T22:31:26.596Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f8/a3/1acdb3aa3f4a90a1d5275dcaa4acea295aa3d9102d7529c56734c0cde46c/llama_index_cli-0.4.3.tar.gz", hash = "sha256:dae8183a10551bbd89686b94ed294a6cf44633c3dd6285c4f991c85031b7a55f", size = 25274, upload-time = "2025-06-04T21:06:16.691Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f8/2a/9e34f40e8f62b34cfe56328aa8ef6d6d854d7e69aaabc78e5540fabf260b/llama_index_cli-0.4.2-py3-none-any.whl", hash = "sha256:c8a842d68fdd76eeb12b6af259e2934666ee783f5c40d90c944e101f4e432aa4", size = 28516, upload-time = "2025-05-30T22:31:25.417Z" },
+    { url = "https://files.pythonhosted.org/packages/bc/e5/0e7f9515c88cf4e791bf243f83246e2634c01ec5cdbd7245307b28b48487/llama_index_cli-0.4.3-py3-none-any.whl", hash = "sha256:f0af55ce4b90e5a2466e394b88f4ac6085ea3e6286019bc3f49de6673ce2238d", size = 28564, upload-time = "2025-06-04T21:06:09.304Z" },
 ]
 
 [[package]]
@@ -658,15 +678,15 @@ wheels = [
 
 [[package]]
 name = "llama-index-indices-managed-llama-cloud"
-version = "0.7.3"
+version = "0.7.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "llama-cloud" },
     { name = "llama-index-core" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/04/27/da95af2d2b5c411aea2750a1aba1b6d5cbef5ed2456c23a784f18cbfab25/llama_index_indices_managed_llama_cloud-0.7.3.tar.gz", hash = "sha256:30ebde042cd95feff6f29df25da66a71a0d9b68bd1d6a48fabd70039cac8a629", size = 13810, upload-time = "2025-06-03T16:43:00.881Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/bb/ad/9099774f5138295b7f576fb1164b83f3493e9d6541e19986c6a5b513d110/llama_index_indices_managed_llama_cloud-0.7.4.tar.gz", hash = "sha256:f014ba41b56d4aefe346647770734bc914a1fc8f77bf508d8eaf0e2089189ec8", size = 13866, upload-time = "2025-06-05T01:35:05.482Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/71/58/b7e73c30f3596a1dbabef7e27901c3061f556fb666be734d370b33b158ef/llama_index_indices_managed_llama_cloud-0.7.3-py3-none-any.whl", hash = "sha256:e2dab5d389f85e433bcea0cd9a4359f3918dcb9ec3a63728d1df64732a541ef4", size = 15443, upload-time = "2025-06-03T16:42:59.648Z" },
+    { url = "https://files.pythonhosted.org/packages/f6/1a/b2187464d9dbd4466eca0f710152903db01fc88ce6ecc46420d51bd52ac0/llama_index_indices_managed_llama_cloud-0.7.4-py3-none-any.whl", hash = "sha256:1d0ff874250c76615d0563409ebd887c5aac824382447054869a6be6335656bd", size = 15515, upload-time = "2025-06-05T01:35:04.091Z" },
 ]
 
 [[package]]
@@ -725,7 +745,7 @@ wheels = [
 
 [[package]]
 name = "llama-index-readers-file"
-version = "0.4.8"
+version = "0.4.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beautifulsoup4" },
@@ -734,9 +754,9 @@ dependencies = [
     { name = "pypdf" },
     { name = "striprtf" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9d/55/de3392c59f8f44d20e48b72faa91393061425d68cf7035f167db7732f025/llama_index_readers_file-0.4.8.tar.gz", hash = "sha256:d2821b164c11453b7993456355a6c544631a0ae8656a646df9fc009f16cfb99f", size = 22668, upload-time = "2025-05-27T19:53:18.479Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6a/aa/517a79b9fa57ff42dc3d0ae801676b794c81bbceacc2350c948ebe9cfa7e/llama_index_readers_file-0.4.9.tar.gz", hash = "sha256:b705fd42a2875af03d343c66b28138471800cd13a67efcc48ae2983b39d816c7", size = 22710, upload-time = "2025-06-05T04:26:00.705Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/03/24/62226cbf55e91d97d7b7d659d3dc05a42f15c2413589056ace8a4813fb76/llama_index_readers_file-0.4.8-py3-none-any.whl", hash = "sha256:6cc64c70c3a9f5b146200a68c15b742e6f0d13b308a1c0dc6bb919e3b5fd4275", size = 40972, upload-time = "2025-05-27T19:53:17.047Z" },
+    { url = "https://files.pythonhosted.org/packages/65/65/ebc692d80f55501771eec0854cea90c9f7ecdbd688a74e89357ef8afa285/llama_index_readers_file-0.4.9-py3-none-any.whl", hash = "sha256:71f1d0d2ea22012bf233ed4afb9b9b6b2f098d26286e38ed82e3c4af685e07bd", size = 40976, upload-time = "2025-06-05T04:25:59.397Z" },
 ]
 
 [[package]]

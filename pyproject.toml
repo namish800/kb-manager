@@ -4,12 +4,15 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
     "kb_ingestion",
+    "kb_retriever"
 ]
 
 [tool.uv.sources]
 kb_ingestion = { workspace = true }
+kb_retriever = { workspace = true }
 
 [tool.uv.workspace]
 members = [
     "packages/kb_ingestion",
+    "packages/kb_retriever",
 ]
