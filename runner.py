@@ -13,6 +13,7 @@ from kb_retriever.models.retrieval import (
     RetrievalConfig,
     VectorStoreConfig,
 )
+from llama_cloud_services import LlamaParse
 from pinecone import Pinecone
 from llama_index.vector_stores.pinecone import PineconeVectorStore
 from firecrawl import FirecrawlApp
@@ -31,6 +32,9 @@ def get_pinecone_vs():
 def get_firecrawl_reader():
     return FirecrawlApp(api_key=os.getenv("FIRECRAWL_API_KEY"))
 
+def get_llama_parse():
+    return LlamaParse(api_key=os.getenv("LLAMA_PARSE_API_KEY"))
+
 async def document_ingestion_example(vector_store: PineconeVectorStore):
     """Example of document ingestion to Pinecone."""
     print("Running ingestion example...")
@@ -48,19 +52,28 @@ async def document_ingestion_example(vector_store: PineconeVectorStore):
         chunk_size=1024,
         chunk_overlap=100
     )
+
+    document_parser = get_llama_parse()
     
     # Initialize pipeline
     pipeline = LlamaIndexDocumentIngestionToPinecone(
         config, 
-        vector_store=vector_store
+        vector_store=vector_store,
+        document_parser=document_parser
     )
-    
+
+    file_path = "C:\\Users\\namis\\Downloads\\budget_speech.pdf"
+    content = open(file_path, "rb").read()
+    file_name = os.path.basename(file_path)
+    file_size = os.path.getsize(file_path)
+    file_content_type = "application/pdf"
+
     # Sample file
     file = FileWrapper(
-        filename="hello.txt",
-        content_type="text/plain",
-        size=1024,
-        content="Hello, world! This is a sample document for testing knowledge base ingestion."
+        filename=file_name,
+        content_type=file_content_type,
+        size=file_size,
+        content=content
     )
     
     # Ingest file
@@ -142,15 +155,15 @@ async def main():
     firecrawl_reader = get_firecrawl_reader()
     
     # Run document ingestion example
-    # await document_ingestion_example(vector_store)
-    # print()
+    await document_ingestion_example(vector_store)
+    print()
     
     # Run website ingestion example
     # await website_ingestion_example(vector_store, firecrawl_reader)
     # print()
     
     # # Run retrieval example
-    await retrieval_example(vector_store)
+    # await retrieval_example(vector_store)
 
 
 if __name__ == "__main__":

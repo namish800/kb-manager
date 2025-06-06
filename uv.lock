@@ -609,10 +609,11 @@ wheels = [
 
 [[package]]
 name = "kb-ingestion"
-version = "0.1.0"
+version = "0.1.1"
 source = { editable = "packages/kb_ingestion" }
 dependencies = [
     { name = "firecrawl-py" },
+    { name = "llama-cloud-services" },
     { name = "llama-index" },
     { name = "llama-index-readers-web" },
     { name = "llama-index-vector-stores-pinecone" },
@@ -621,6 +622,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "firecrawl-py", specifier = ">=2.7.1" },
+    { name = "llama-cloud-services", specifier = ">=0.6.28" },
     { name = "llama-index", specifier = ">=0.12.40" },
     { name = "llama-index-readers-web", specifier = ">=0.4.2" },
     { name = "llama-index-vector-stores-pinecone", specifier = ">=0.4.5" },
@@ -643,7 +645,7 @@ requires-dist = [
 
 [[package]]
 name = "kb-retriever"
-version = "0.1.0"
+version = "0.1.1"
 source = { editable = "packages/kb_retriever" }
 dependencies = [
     { name = "llama-index" },

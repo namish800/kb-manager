@@ -16,10 +16,13 @@ from kb_ingestion.models.config import PipelineConfig
 from kb_ingestion.models.requests import FileWrapper
 from kb_ingestion.models.results import IngestionResult
 from kb_ingestion.interfaces.ingestion import IIngestionPipeline
+from llama_cloud_services import LlamaParse
+from llama_cloud_services.parse.types import JobResult
+
 
 
 class LlamaIndexDocumentIngestionToPinecone(IIngestionPipeline):
-    def __init__(self, config: PipelineConfig, vector_store: PineconeVectorStore):
+    def __init__(self, config: PipelineConfig, vector_store: PineconeVectorStore, document_parser: LlamaParse):
         self.config = config
         self.vector_store = vector_store
         
@@ -37,6 +40,7 @@ class LlamaIndexDocumentIngestionToPinecone(IIngestionPipeline):
             ],
             vector_store=self.vector_store,
         )
+        self.document_parser = document_parser
 
     async def ingest(self, source: FileWrapper) -> IngestionResult:
         """Ingest a single file using LlamaIndex pipeline."""
@@ -44,10 +48,10 @@ class LlamaIndexDocumentIngestionToPinecone(IIngestionPipeline):
         
         try:
             # Create a Document from the FileWrapper
-            document = self._create_document_from_file(source)
+            documents = await self._parse_document(source)
             
             # Run the ingestion pipeline
-            nodes = await self.pipeline.arun(documents=[document])
+            nodes = await self.pipeline.arun(documents=documents)
             
             # Extract node IDs
             node_ids = [node.node_id for node in nodes if hasattr(node, 'node_id')]
@@ -72,6 +76,7 @@ class LlamaIndexDocumentIngestionToPinecone(IIngestionPipeline):
             processing_time = time.time() - start_time
             return IngestionResult(
                 success=False,
+                source_id=source.filename,
                 chunk_ids=[],
                 metadata={
                     "source_file": source.filename,
@@ -126,3 +131,9 @@ class LlamaIndexDocumentIngestionToPinecone(IIngestionPipeline):
             metadata=metadata,
             id_=doc_id,
         )
+    
+    async def _parse_document(self, source: FileWrapper) -> List[Document]:
+        """Parse the document using LlamaParse."""
+        bytes = source.content
+        result: JobResult = await self.document_parser.aparse(bytes, extra_info={"file_name": source.filename})
+        return await result.aget_markdown_documents()
