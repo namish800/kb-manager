@@ -18,8 +18,6 @@ from llama_index.vector_stores.pinecone import PineconeVectorStore
 from firecrawl import FirecrawlApp
 
 
-
-
 def get_pinecone_vs():
     # Initialize Pinecone
     pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))

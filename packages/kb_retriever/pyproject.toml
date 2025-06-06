@@ -1,6 +1,6 @@
 [project]
 name = "kb-retriever"
-version = "0.1.0"
+version = "0.1.1"
 description = "Knowledge base retrieval component using LlamaIndex and Pinecone"
 readme = "README.md"
 authors = [
