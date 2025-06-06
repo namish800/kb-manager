@@ -24,9 +24,6 @@ class EmbeddingConfig:
     batch_size: int = 100
     """Number of texts to process in a single embedding request"""
     
-    max_tokens: int = 8192
-    """Maximum number of tokens per text for embedding"""
-    
     dimensions: Optional[int] = None
     """Number of dimensions for the embeddings (model-dependent)"""
     
@@ -38,14 +35,48 @@ class EmbeddingConfig:
         if self.batch_size <= 0:
             raise ValueError("batch_size must be positive")
         
-        if self.max_tokens <= 0:
-            raise ValueError("max_tokens must be positive")
-        
         if self.dimensions is not None and self.dimensions <= 0:
             raise ValueError("dimensions must be positive")
         
         if self.extra_params is None:
             self.extra_params = {}
+
+
+
+@dataclass
+class VectorStoreConfig:
+    """Configuration for vector storage."""
+    
+    index_name: str
+    """Name of the vector index"""
+    
+    namespace: Optional[str] = None
+    """Namespace for the vectors (if supported by the store)"""
+    
+    metadata_filter: Optional[Dict[str, Any]] = None
+    """Default metadata filters to apply"""
+    
+    upsert_batch_size: int = 100
+    """Number of vectors to upsert in a single operation"""
+    
+    extra_params: Dict[str, Any] = field(default_factory=dict)
+    """Additional parameters for the vector store"""
+    
+    def __post_init__(self):
+        """Validate vector store configuration."""
+        if not self.index_name:
+            raise ValueError("index_name cannot be empty")
+        
+        if self.upsert_batch_size <= 0:
+            raise ValueError("upsert_batch_size must be positive")
+        
+        if self.extra_params is None:
+            self.extra_params = {}
+        
+        if self.metadata_filter is None:
+            self.metadata_filter = {} 
+
+
 
 @dataclass
 class PipelineConfig:
@@ -56,7 +87,7 @@ class PipelineConfig:
     """
 
     embedding_config: EmbeddingConfig
-    
+
     # Text processing settings
     chunk_size: int = 1024
     """Size of text chunks in tokens"""
@@ -155,37 +186,3 @@ class PipelineConfig:
     def set_extra_config(self, key: str, value: Any) -> None:
         """Set an extra configuration value."""
         self.extra_config[key] = value
-
-
-@dataclass
-class VectorStoreConfig:
-    """Configuration for vector storage."""
-    
-    index_name: str
-    """Name of the vector index"""
-    
-    namespace: Optional[str] = None
-    """Namespace for the vectors (if supported by the store)"""
-    
-    metadata_filter: Optional[Dict[str, Any]] = None
-    """Default metadata filters to apply"""
-    
-    upsert_batch_size: int = 100
-    """Number of vectors to upsert in a single operation"""
-    
-    extra_params: Dict[str, Any] = field(default_factory=dict)
-    """Additional parameters for the vector store"""
-    
-    def __post_init__(self):
-        """Validate vector store configuration."""
-        if not self.index_name:
-            raise ValueError("index_name cannot be empty")
-        
-        if self.upsert_batch_size <= 0:
-            raise ValueError("upsert_batch_size must be positive")
-        
-        if self.extra_params is None:
-            self.extra_params = {}
-        
-        if self.metadata_filter is None:
-            self.metadata_filter = {} 

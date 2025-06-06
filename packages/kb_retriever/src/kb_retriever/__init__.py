@@ -7,7 +7,7 @@ from .models.retrieval import (
     QueryRequest,
     RetrievalConfig,
     RetrievalResult,
-    RetrievedNode,
+    RetrievedChunk,
     VectorStoreConfig,
 )
 
@@ -22,7 +22,7 @@ __all__ = [
     
     # Data models
     "QueryRequest",
-    "RetrievedNode", 
+    "RetrievedChunk", 
     "RetrievalResult",
     
     # Configuration models

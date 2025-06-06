@@ -33,7 +33,7 @@ class QueryRequest:
 
 
 @dataclass
-class RetrievedNode:
+class RetrievedChunk:
     """A single retrieved node with content and metadata."""
     
     node_id: str
@@ -71,7 +71,7 @@ class RetrievalResult:
     """Result of a retrieval operation."""
     
     success: bool
-    nodes: List[RetrievedNode] = field(default_factory=list)
+    chunks: List[RetrievedChunk] = field(default_factory=list)
     query_metadata: Dict[str, Any] = field(default_factory=dict)
     total_nodes_found: int = 0
     processing_time_seconds: float = 0.0
@@ -80,29 +80,29 @@ class RetrievalResult:
     def __post_init__(self):
         """Set total_nodes_found if not provided."""
         if self.total_nodes_found == 0:
-            self.total_nodes_found = len(self.nodes)
+            self.total_nodes_found = len(self.chunks)
     
-    def get_top_nodes(self, count: int) -> List[RetrievedNode]:
+    def get_top_nodes(self, count: int) -> List[RetrievedChunk]:
         """Get the top N nodes by similarity score."""
-        return sorted(self.nodes, key=lambda x: x.similarity_score, reverse=True)[:count]
+        return sorted(self.chunks, key=lambda x: x.similarity_score, reverse=True)[:count]
     
-    def filter_by_similarity(self, threshold: float) -> List[RetrievedNode]:
+    def filter_by_similarity(self, threshold: float) -> List[RetrievedChunk]:
         """Filter nodes by minimum similarity threshold."""
-        return [node for node in self.nodes if node.similarity_score >= threshold]
+        return [node for node in self.chunks if node.similarity_score >= threshold]
     
     def get_sources(self) -> List[str]:
         """Get unique source references from all nodes."""
         sources = set()
-        for node in self.nodes:
+        for node in self.chunks:
             sources.add(node.get_source_reference())
         return sorted(list(sources))
     
     def get_citation_summary(self) -> Dict[str, Any]:
         """Get a summary suitable for citation purposes."""
         return {
-            "total_nodes": len(self.nodes),
+            "total_nodes": len(self.chunks),
             "sources": self.get_sources(),
-            "avg_similarity": sum(node.similarity_score for node in self.nodes) / len(self.nodes) if self.nodes else 0.0,
+            "avg_similarity": sum(node.similarity_score for node in self.chunks) / len(self.chunks) if self.chunks else 0.0,
             "processing_time": self.processing_time_seconds,
             "query_metadata": self.query_metadata,
         }
@@ -132,7 +132,6 @@ class RetrievalConfig:
     """Configuration for retrieval operations."""
     
     embedding_config: EmbeddingConfig
-    vector_store_config: VectorStoreConfig
     
     # Retrieval defaults
     default_similarity_top_k: int = 10

@@ -1,7 +1,7 @@
 """Request data models for the ingestion pipeline."""
 
 from dataclasses import dataclass, field
-from typing import Dict, Any, Union
+from typing import Dict, Any, List, Union
 from io import BytesIO
 
 
@@ -60,6 +60,16 @@ class FileWrapper:
             self.content.seek(0)
 
 
+@dataclass
+class WebsiteWrapper:
+    """Encapsulates a website with metadata for ingestion processing."""
+    urls: List[str]
+    """The URLs of the website"""
+    
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    """Additional metadata associated with the website"""
+    
+    
 @dataclass 
 class BatchRequest:
     """Request for batch processing multiple files."""

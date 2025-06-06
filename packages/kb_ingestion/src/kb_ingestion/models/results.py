@@ -19,8 +19,8 @@ class IngestionResult:
     source_id: str
     """Unique identifier for the source (filename, URL, etc.)"""
     
-    node_ids: List[str]
-    """List of node IDs created during ingestion"""
+    chunk_ids: List[str]
+    """List of chunk IDs created during ingestion"""
     
     metadata: Dict[str, Any]
     """Additional metadata about the processing operation"""
@@ -44,8 +44,8 @@ class IngestionResult:
             self.error = Exception("Unknown error occurred during processing")
     
     @property
-    def node_count(self) -> int:
-        """Get the number of nodes created."""
+    def chunk_count(self) -> int:
+        """Get the number of chunks created."""
         return len(self.node_ids)
     
     @property

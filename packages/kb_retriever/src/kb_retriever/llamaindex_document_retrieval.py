@@ -15,7 +15,7 @@ from kb_retriever.interfaces.retrieval import IRetrievalPipeline
 from kb_retriever.models.retrieval import (
     QueryRequest,
     RetrievalResult,
-    RetrievedNode,
+    RetrievedChunk,
     RetrievalConfig,
 )
 
@@ -27,7 +27,7 @@ class LlamaIndexDocumentRetrievalFromPinecone(IRetrievalPipeline):
     stored in Pinecone, using OpenAI embeddings for query encoding.
     """
     
-    def __init__(self, config: RetrievalConfig):
+    def __init__(self, config: RetrievalConfig, vector_store: PineconeVectorStore):
         """Initialize the retrieval pipeline.
         
         Args:
@@ -35,21 +35,14 @@ class LlamaIndexDocumentRetrievalFromPinecone(IRetrievalPipeline):
         """
         self.config = config
         
-        # Initialize Pinecone
-        pc = Pinecone(api_key=config.vector_store_config.api_key)
-        pinecone_index = pc.Index(config.vector_store_config.index_name)
-        
-        # Create vector store with namespace if specified
-        self.vector_store = PineconeVectorStore(
-            pinecone_index=pinecone_index,
-            namespace=config.vector_store_config.namespace or None
-        )
-        
         # Initialize embedding model
         self.embedding_model = OpenAIEmbedding(
             api_key=config.embedding_config.api_key,
             model=config.embedding_config.model_name,
         )
+
+        # Initialize vector store
+        self.vector_store = vector_store
         
         # Create vector index for retrieval
         self.vector_index = VectorStoreIndex.from_vector_store(
@@ -99,7 +92,7 @@ class LlamaIndexDocumentRetrievalFromPinecone(IRetrievalPipeline):
             
             return RetrievalResult(
                 success=True,
-                nodes=retrieved_nodes,
+                chunks=retrieved_nodes,
                 query_metadata={
                     "original_query": request.query,
                     "similarity_top_k": request.similarity_top_k,
@@ -183,7 +176,7 @@ class LlamaIndexDocumentRetrievalFromPinecone(IRetrievalPipeline):
     
     def _convert_nodes_to_retrieved_nodes(
         self, nodes_with_scores: List[NodeWithScore]
-    ) -> List[RetrievedNode]:
+    ) -> List[RetrievedChunk]:
         """Convert LlamaIndex NodeWithScore objects to our RetrievedNode format.
         
         Args:
@@ -203,7 +196,7 @@ class LlamaIndexDocumentRetrievalFromPinecone(IRetrievalPipeline):
             metadata = dict(node.metadata) if node.metadata else {}
             
             # Create our RetrievedNode
-            retrieved_node = RetrievedNode(
+            retrieved_node = RetrievedChunk(
                 node_id=node.node_id,
                 content=content,
                 similarity_score=score,

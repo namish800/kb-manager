@@ -1,10 +1,10 @@
 """Data models for kb_retriever package."""
 
-from .retrieval import QueryRequest, RetrievalResult, RetrievedNode, RetrievalConfig
+from .retrieval import QueryRequest, RetrievalResult, RetrievedChunk, RetrievalConfig
 
 __all__ = [
     "QueryRequest",
     "RetrievalResult", 
-    "RetrievedNode",
+    "RetrievedChunk",
     "RetrievalConfig",
 ] 

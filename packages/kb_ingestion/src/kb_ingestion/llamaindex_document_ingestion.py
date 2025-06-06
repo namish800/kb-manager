@@ -19,15 +19,11 @@ from kb_ingestion.interfaces.ingestion import IIngestionPipeline
 
 
 class LlamaIndexDocumentIngestionToPinecone(IIngestionPipeline):
-    def __init__(self, config: PipelineConfig, api_key: str, index_name: str):
+    def __init__(self, config: PipelineConfig, vector_store: PineconeVectorStore):
         self.config = config
+        self.vector_store = vector_store
         
-        # Initialize Pinecone
-        pc = Pinecone(api_key=api_key)
-        pinecone_index = pc.Index(index_name)
-        self.vector_store = PineconeVectorStore(pinecone_index=pinecone_index, namespace="adad")
-        
-        # Initialize the ingestion pipeline
+        # Initialize the ingestion pipeline 
         self.pipeline = IngestionPipeline(
             transformations=[
                 SentenceSplitter(
@@ -61,7 +57,7 @@ class LlamaIndexDocumentIngestionToPinecone(IIngestionPipeline):
             return IngestionResult(
                 success=True,
                 source_id=source.filename,
-                node_ids=node_ids,
+                chunk_ids=node_ids,
                 metadata={
                     "source_file": source.filename,
                     "content_type": source.content_type,
@@ -76,7 +72,7 @@ class LlamaIndexDocumentIngestionToPinecone(IIngestionPipeline):
             processing_time = time.time() - start_time
             return IngestionResult(
                 success=False,
-                node_ids=[],
+                chunk_ids=[],
                 metadata={
                     "source_file": source.filename,
                     "content_type": source.content_type,
@@ -91,11 +87,11 @@ class LlamaIndexDocumentIngestionToPinecone(IIngestionPipeline):
         """Validate if the source file can be processed."""
         try:
             # Check file size
-            if source.size > self.config.file_validation.max_file_size_mb * 1024 * 1024:
+            if source.size > self.config.max_file_size_mb * 1024 * 1024:
                 return False
             
             # Check content type if specified
-            allowed_types = self.config.file_validation.allowed_mime_types
+            allowed_types = self.config.supported_file_types
             if allowed_types and source.content_type not in allowed_types:
                 return False
             

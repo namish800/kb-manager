@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from ..models.requests import FileWrapper
+from ..models.requests import FileWrapper, WebsiteWrapper
 from ..models.results import IngestionResult, BatchIngestionResult
 
 
@@ -15,7 +15,7 @@ class IIngestionPipeline(ABC):
     """
     
     @abstractmethod
-    async def ingest(self, source: FileWrapper) -> IngestionResult:
+    async def ingest(self, source: FileWrapper | WebsiteWrapper) -> IngestionResult:
         """Process a single source and return ingestion result.
         
         Args:

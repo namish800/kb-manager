@@ -11,6 +11,10 @@ dependencies = [
 kb_ingestion = { workspace = true }
 kb_retriever = { workspace = true }
 
+[tool.setuptools]
+packages = []      # root is just a meta project
+
+
 [tool.uv.workspace]
 members = [
     "packages/kb_ingestion",
