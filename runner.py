@@ -119,7 +119,7 @@ async def website_ingestion_example(vector_store: PineconeVectorStore, firecrawl
     
 
 
-async def retrieval_example(vector_store: PineconeVectorStore):
+async def retrieval_example(vector_store: PineconeVectorStore, query: str):
     """Example of document retrieval from Pinecone."""
     print("Running retrieval example...")
     
@@ -136,7 +136,7 @@ async def retrieval_example(vector_store: PineconeVectorStore):
     
     # Create query request
     query_request = QueryRequest(
-        query="What is Sarvam-m?",
+        query=query,
         similarity_top_k=2,
         similarity_threshold=0.7,
     )
@@ -155,15 +155,15 @@ async def main():
     firecrawl_reader = get_firecrawl_reader()
     
     # Run document ingestion example
-    await document_ingestion_example(vector_store)
-    print()
+    # await document_ingestion_example(vector_store)
+    # print()
     
     # Run website ingestion example
     # await website_ingestion_example(vector_store, firecrawl_reader)
     # print()
     
     # # Run retrieval example
-    # await retrieval_example(vector_store)
+    await retrieval_example(vector_store, "What is Indian budget. give me outline of the budget")
 
 
 if __name__ == "__main__":
