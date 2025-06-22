@@ -40,6 +40,19 @@ class Settings(BaseSettings):
     # File Processing Configuration
     max_file_size_mb: int = Field(default=25, description="Maximum file size in MB")
     temp_dir: str = Field(default="/tmp", description="Temporary directory for file processing")
+    
+    # Ingestion Pipeline Configuration
+    chunk_size: int = Field(default=1024, description="Text chunk size for processing")
+    chunk_overlap: int = Field(default=200, description="Overlap between chunks")
+    embedding_model: str = Field(default="text-embedding-3-small", description="OpenAI embedding model")
+    embedding_dimensions: int = Field(default=1536, description="Embedding vector dimensions")
+    
+    # Processing Limits
+    max_concurrent_jobs: int = Field(default=3, description="Maximum concurrent ingestion jobs")
+    job_timeout_minutes: int = Field(default=30, description="Job timeout in minutes")
+    
+    # Vector Store Configuration
+    pinecone_environment: str = Field(default="gcp-starter", description="Pinecone environment")
 
     class Config:
         env_file = ".env"

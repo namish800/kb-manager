@@ -6,6 +6,7 @@ from typing import Annotated
 
 from fastapi import Depends, Header, Request
 from fastapi.security import HTTPBearer
+from kb_event_handler.common.repositories import FileRepository, JobRepository
 
 from .config import settings
 from .exceptions import AuthenticationError, ValidationError
@@ -23,6 +24,9 @@ from .common import (
     FileValidationService,
     TempFileManager,
 )
+# Import ingestion services
+from .ingestion.ingestion_service import IngestionService
+from .ingestion.background_processor import BackgroundJobProcessor
 
 
 logger = logging.getLogger(__name__)
@@ -123,6 +127,29 @@ async def get_temp_file_manager(
     return TempFileManager(storage_client, settings.temp_dir)
 
 
+# Ingestion service dependencies
+async def get_ingestion_service():
+    """Get ingestion service instance."""
+    return IngestionService(settings)
+
+
+async def get_background_job_processor(
+    ingestion_service: Annotated[IngestionService, Depends(get_ingestion_service)],
+    temp_file_manager: Annotated[TempFileManager, Depends(get_temp_file_manager)],
+    file_validation_service: Annotated[FileValidationService, Depends(get_file_validation_service)],
+    job_repository: Annotated[JobRepository, Depends(get_job_repository)],
+    file_repository: Annotated[FileRepository, Depends(get_file_repository)],
+):
+    """Get background job processor instance."""
+    return BackgroundJobProcessor(
+        ingestion_service=ingestion_service,
+        temp_file_manager=temp_file_manager,
+        file_validation_service=file_validation_service,
+        job_repository=job_repository,
+        file_repository=file_repository,
+    )
+
+
 # Dependency aliases for common use
 CorrelationIdDep = Annotated[str, Depends(get_correlation_id)]
 ApiKeyDep = Annotated[str, Depends(authenticate_api_key)]
@@ -138,4 +165,8 @@ FileRepoDep = Annotated[file_repository.__class__, Depends(get_file_repository)]
 # File service dependencies
 StorageClientDep = Annotated[StorageClient, Depends(get_storage_client)]
 FileValidationServiceDep = Annotated[FileValidationService, Depends(get_file_validation_service)]
-TempFileManagerDep = Annotated[TempFileManager, Depends(get_temp_file_manager)] 
+TempFileManagerDep = Annotated[TempFileManager, Depends(get_temp_file_manager)]
+
+# Ingestion service dependencies
+IngestionServiceDep = Annotated[IngestionService, Depends(get_ingestion_service)]
+BackgroundJobProcessorDep = Annotated[BackgroundJobProcessor, Depends(get_background_job_processor)] 
