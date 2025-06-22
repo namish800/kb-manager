@@ -12,7 +12,9 @@ from kb_event_handler.common import (
     FileValidationService,
     JobRepository,
     FileRepository,
+    KnowledgeBaseRepository,
     KBJobUpdate,
+    KnowledgeBaseUpdate,
 )
 from kb_event_handler.exceptions import KBEventHandlerException
 
@@ -29,12 +31,14 @@ class BackgroundJobProcessor:
         file_validation_service: FileValidationService,
         job_repository: JobRepository,
         file_repository: FileRepository,
+        knowledge_base_repository: KnowledgeBaseRepository,
     ):
         self.document_ingestion_service = document_ingestion_service
         self.website_ingestion_service = website_ingestion_service
         self.file_validation_service = file_validation_service
         self.job_repository = job_repository
         self.file_repository = file_repository
+        self.knowledge_base_repository = knowledge_base_repository
         
         # Track running jobs to prevent duplicates
         self._running_jobs: Dict[int, asyncio.Task] = {}
@@ -114,6 +118,9 @@ class BackgroundJobProcessor:
             started_at=datetime.now(timezone.utc)
         )
         
+        # Update knowledge base status to processing
+        await self._update_knowledge_base_status(knowledge_base_id, tenant_id, "processing")
+        
         try:
             # Step 1: Validate file exists and is processable
             
@@ -164,13 +171,13 @@ class BackgroundJobProcessor:
                     metadata=metadata
                 )
 
-            await self._complete_job(job_id, ingestion_result)
+            await self._complete_job(job_id, knowledge_base_id, tenant_id, ingestion_result)
             
             logger.info(f"Successfully completed job {job_id}: {filename}")
             
         except Exception as e:
             logger.error(f"Job {job_id} failed: {str(e)}", exc_info=True)
-            await self._fail_job(job_id, str(e))
+            await self._fail_job(job_id, knowledge_base_id, tenant_id, str(e))
     
     async def _update_job_status(
         self,
@@ -197,7 +204,24 @@ class BackgroundJobProcessor:
             logger.error(f"Failed to update job {job_id} status: {e}")
             # Don't raise here to avoid masking the original error
     
-    async def _complete_job(self, job_id: int, result: IngestionResult) -> None:
+    async def _update_knowledge_base_status(
+        self,
+        knowledge_base_id: int,
+        tenant_id: int,
+        status: str
+    ) -> None:
+        """Update knowledge base status."""
+        try:
+            kb_update = KnowledgeBaseUpdate(status=status)
+            await self.knowledge_base_repository.update_kb(knowledge_base_id, kb_update, tenant_id)
+            
+            logger.debug(f"Updated knowledge base {knowledge_base_id} status to {status}")
+            
+        except Exception as e:
+            logger.error(f"Failed to update knowledge base {knowledge_base_id} status: {e}")
+            # Don't raise here to avoid masking the original error
+    
+    async def _complete_job(self, job_id: int, knowledge_base_id: int, tenant_id: int, result: IngestionResult) -> None:
         """Mark job as completed with results."""
         status = "completed" if result.success else "failed"
         
@@ -213,8 +237,12 @@ class BackgroundJobProcessor:
                 **result.metadata
             }
         )
+        
+        # Update knowledge base status
+        kb_status = "completed" if result.success else "failed"
+        await self._update_knowledge_base_status(knowledge_base_id, tenant_id, kb_status)
     
-    async def _fail_job(self, job_id: int, error_message: str) -> None:
+    async def _fail_job(self, job_id: int, knowledge_base_id: int, tenant_id: int, error_message: str) -> None:
         """Mark job as failed with error message."""
         await self._update_job_status(
             job_id=job_id,
@@ -222,6 +250,9 @@ class BackgroundJobProcessor:
             completed_at=datetime.now(timezone.utc),
             error_message=error_message
         )
+        
+        # Update knowledge base status to failed
+        await self._update_knowledge_base_status(knowledge_base_id, tenant_id, "failed")
     
     async def get_running_jobs(self) -> Dict[int, str]:
         """

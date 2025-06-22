@@ -6,7 +6,7 @@ from typing import Annotated
 
 from fastapi import Depends, Header, Request
 from fastapi.security import HTTPBearer
-from kb_event_handler.common.repositories import FileRepository, JobRepository
+from kb_event_handler.common.repositories import FileRepository, JobRepository, KnowledgeBaseRepository
 
 from kb_event_handler.config import settings
 from kb_event_handler.exceptions import AuthenticationError, ValidationError
@@ -221,6 +221,7 @@ async def get_background_job_processor(
     file_validation_service: Annotated[FileValidationService, Depends(get_file_validation_service)],
     job_repository: Annotated[JobRepository, Depends(get_job_repository)],
     file_repository: Annotated[FileRepository, Depends(get_file_repository)],
+    knowledge_base_repository: Annotated[KnowledgeBaseRepository, Depends(get_knowledge_base_repository)],
 ):
     """Get background job processor instance."""
     return BackgroundJobProcessor(
@@ -229,6 +230,7 @@ async def get_background_job_processor(
         file_validation_service=file_validation_service,
         job_repository=job_repository,
         file_repository=file_repository,
+        knowledge_base_repository=knowledge_base_repository,
     )
 
 
