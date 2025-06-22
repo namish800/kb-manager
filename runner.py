@@ -163,7 +163,7 @@ async def main():
     # print()
     
     # # Run retrieval example
-    await retrieval_example(vector_store, "What is Indian budget. give me outline of the budget")
+    # await retrieval_example(vector_store, "What is Indian budget. give me outline of the budget")
 
 
 if __name__ == "__main__":

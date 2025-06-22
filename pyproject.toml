@@ -19,4 +19,5 @@ packages = []      # root is just a meta project
 members = [
     "packages/kb_ingestion",
     "packages/kb_retriever",
+    "packages/kb_event_handler",
 ]

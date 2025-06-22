@@ -1,0 +1,100 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36" version="27.0.8" pages="2">
+  <diagram name="design" id="1etGjaRjRtW2mEHVLgZ5">
+    <mxGraphModel dx="2430" dy="957" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-1" value="Blob storage" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="350" y="60" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-2" value="DB" style="shape=datastore;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="310" y="210" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="aKrTrqmCPISbKF1OqGKa-3" target="aKrTrqmCPISbKF1OqGKa-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-21" value="Send parsing results via webhook" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="aKrTrqmCPISbKF1OqGKa-20">
+          <mxGeometry x="0.1498" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-3" value="Parser" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="550" y="140" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aKrTrqmCPISbKF1OqGKa-4" target="aKrTrqmCPISbKF1OqGKa-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-14" value="1. Upload file to blob" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="aKrTrqmCPISbKF1OqGKa-11">
+          <mxGeometry x="-0.3309" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aKrTrqmCPISbKF1OqGKa-4" target="aKrTrqmCPISbKF1OqGKa-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-17" value="2. Add blob url along with metadata to DB" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="aKrTrqmCPISbKF1OqGKa-16">
+          <mxGeometry x="-0.16" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aKrTrqmCPISbKF1OqGKa-4" target="aKrTrqmCPISbKF1OqGKa-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-19" value="3. Initiate a parsing job" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="aKrTrqmCPISbKF1OqGKa-18">
+          <mxGeometry x="-0.5459" y="4" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="aKrTrqmCPISbKF1OqGKa-4" target="aKrTrqmCPISbKF1OqGKa-7">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="210" y="490" as="sourcePoint" />
+            <mxPoint x="660" y="450" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="210" y="520" />
+              <mxPoint x="660" y="520" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-23" value="ingest vectors" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="aKrTrqmCPISbKF1OqGKa-22">
+          <mxGeometry x="0.0597" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-4" value="Fast API service/&lt;div&gt;Webhook handler&lt;/div&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="190" y="370" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-7" value="vector DB" style="shape=datastore;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="630" y="350" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aKrTrqmCPISbKF1OqGKa-8" target="aKrTrqmCPISbKF1OqGKa-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-10" value="Upload Document" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="aKrTrqmCPISbKF1OqGKa-9">
+          <mxGeometry x="0.2908" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-8" value="UI" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-40" y="270" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-24" value="Qdrant" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="630" y="320" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="aKrTrqmCPISbKF1OqGKa-25" value="Llamaparse" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="545" y="140" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="gLyNCSbUXngHBsU6SomW-1" value="1. User clicks on upload document button&lt;div&gt;2. Select files&lt;/div&gt;&lt;div&gt;3. FE fetches the pre-signed url and Files uploaded to blob storage directly&lt;/div&gt;&lt;div&gt;4. Once uploaded, call the backend API with file&#39;s metadata(blob url, name, type, size, etc.)&lt;/div&gt;&lt;div&gt;5. BE creates a record in database and kicks off the parsing job&lt;/div&gt;&lt;div&gt;6. Once parsing is complete, parser calls a webhook with results&lt;/div&gt;&lt;div&gt;7. the parsed document is ingested(chunked, metadata) into the vector database&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="-80" y="628" width="510" height="110" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="uP6Kj7901WTWMdd-bHDX" name="sequence-diagram">
+    <mxGraphModel dx="1042" dy="622" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

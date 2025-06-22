@@ -1,0 +1,102 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Knowledge Base Management Architecture Guide
+
+## Project Overview
+This is a knowledge base management service with a UV workspace structure containing specialized packages for document ingestion and retrieval using LlamaIndex and Pinecone.
+
+## Package Structure
+- **kb_ingestion**: Document and website ingestion pipeline
+- **kb_retriever**: Knowledge base retrieval and search functionality
+- **playground/**: Experimental code and prototypes
+
+## SOLID Architecture Principles
+
+### Interface-Based Design
+- All core functionality is defined through interfaces in `interfaces/` directories
+- Interfaces follow the pattern `I[ComponentName]` (e.g., `IIngestionPipeline`, `IRetrievalPipeline`)
+- Concrete implementations have descriptive names indicating their technology stack (e.g., `LlamaIndexDocumentIngestion`)
+
+### Data Models Pattern
+Data models are organized in `models/` directories with clear separation:
+- **Requests**: Input data structures (e.g., `QueryRequest`, `BatchRequest`, `FileWrapper`)
+- **Results**: Output data structures (e.g., `IngestionResult`, `RetrievalResult`)
+- **Config**: Configuration classes with validation and enums (e.g., `PipelineConfig`, `RetrievalConfig`)
+- **Domain Objects**: Core entities (e.g., `RetrievedChunk`)
+
+### Dependency Injection
+- Components receive dependencies at instantiation, not per-operation
+- Configuration is passed to constructors, not individual methods
+- External services (vector stores, embedding models) are injected as dependencies
+
+## Naming Conventions
+
+### Interface Methods
+- **Single Operations**: `ingest()`, `retrieve()` 
+- **Batch Operations**: `ingest_batch()`, `retrieve_batch()`
+- **Validation**: `validate_source()`, `validate_query()`
+
+### Data Model Naming
+- **Chunks vs Nodes**: Use `RetrievedChunk` for user-facing APIs, `Node` for internal LlamaIndex objects
+- **Results**: Always include `Result` suffix for operation outcomes
+- **Configs**: Always include `Config` suffix for configuration classes
+
+### File Organization
+```
+packages/[package_name]/
+├── src/[package_name]/
+│   ├── interfaces/           # Abstract interfaces
+│   ├── models/              # Data models
+│   ├── [implementation].py  # Concrete implementations
+│   └── __init__.py         # Public API exports
+├── examples/                # Usage examples
+├── tests/                   # Test files
+└── pyproject.toml          # Package dependencies
+```
+
+## Async Patterns
+
+### LlamaIndex Integration
+- Use `arun()` for native async processing (allows concurrent API calls)
+- Avoid `asyncio.to_thread()` unless integrating truly synchronous code
+- Leverage concurrent processing at both file-level and chunk-level
+
+### Error Handling
+- Always return success/failure indicators in result objects
+- Include detailed error messages and metadata
+- Use structured logging for debugging
+
+## Technology Stack Patterns
+
+### LlamaIndex Dependencies
+- Use umbrella package `llama-index>=0.12.40` for main functionality
+- Add specific packages for specialized components (e.g., `llama-index-vector-stores-pinecone`)
+- Keep dependency versions aligned and up-to-date
+
+### Vector Store Integration
+- Initialize vector stores externally and inject as dependencies
+- Support namespacing for multi-tenant scenarios
+- Abstract vector store specifics behind interfaces
+
+## Development Guidelines
+
+### Single Responsibility
+- Pipelines only handle processing logic
+- Service layers manage async processing and lifecycle
+- Data models focus purely on structure and validation
+
+### Extensibility
+- Design for future capabilities without over-engineering
+- Use composition over inheritance
+- Include metadata fields for future feature support
+
+### Testing and Examples
+- Provide working examples in `examples/` directories
+- Include both basic usage and advanced configuration scenarios
+- Document integration patterns with external services
+
+Keep updating rules as the codebase grows.
+
