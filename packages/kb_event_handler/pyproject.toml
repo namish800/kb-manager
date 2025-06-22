@@ -1,13 +1,22 @@
 [project]
 name = "kb-event-handler"
 version = "0.1.0"
-description = "Add your description here"
+description = "FastAPI service for knowledge base ingestion operations"
 readme = "README.md"
 authors = [
     { name = "namish800", email = "namishpruthi800@gmail.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    "supabase>=2.3.0",
+    "python-multipart>=0.0.6",
+    "python-json-logger>=2.0.7",
+    "kb-ingestion",
+]
 
 [build-system]
 requires = ["hatchling"]
