@@ -3,8 +3,8 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from ..models.requests import FileWrapper, WebsiteWrapper
-from ..models.results import IngestionResult, BatchIngestionResult
+from kb_ingestion.models.requests import FileWrapper, WebsiteWrapper
+from kb_ingestion.models.results import IngestionResult, BatchIngestionResult
 
 
 class IIngestionPipeline(ABC):

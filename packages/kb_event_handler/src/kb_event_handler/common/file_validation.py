@@ -3,7 +3,7 @@
 import logging
 from typing import Dict, Any
 
-from .file_types import (
+from kb_event_handler.common.file_types import (
     MAX_FILE_SIZE_BYTES,
     is_supported_file_type,
     get_expected_mime_type,
@@ -11,8 +11,8 @@ from .file_types import (
     format_file_size,
     get_file_type_description,
 )
-from .storage_client import StorageClient
-from ..exceptions import ValidationError
+from kb_event_handler.common.storage_client import StorageClient
+from kb_event_handler.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 

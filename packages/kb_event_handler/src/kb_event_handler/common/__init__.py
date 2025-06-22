@@ -1,6 +1,6 @@
 """Common utilities and shared components."""
 
-from .models import (
+from kb_event_handler.common.models import (
     KBFile,
     KBJob,
     KBJobCreate,
@@ -11,7 +11,7 @@ from .models import (
     Tenant,
     TenantUser,
 )
-from .repositories import (
+from kb_event_handler.common.repositories import (
     BaseRepository,
     FileRepository,
     JobRepository,
@@ -22,11 +22,11 @@ from .repositories import (
     knowledge_base_repository,
     tenant_repository,
 )
-from .supabase_client import SupabaseClient, supabase_client
-from .storage_client import StorageClient
-from .file_validation import FileValidationService, FileValidationResult
-from .temp_file_manager import TempFileManager
-from .file_types import (
+from kb_event_handler.common.supabase_client import SupabaseClient, supabase_client
+from kb_event_handler.common.storage_client import StorageClient
+from kb_event_handler.common.file_validation import FileValidationService, FileValidationResult
+from kb_event_handler.common.temp_file_manager import TempFileManager
+from kb_event_handler.common.file_types import (
     MAX_FILE_SIZE_BYTES,
     ALLOWED_MIME_TYPES,
     ALLOWED_EXTENSIONS,

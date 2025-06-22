@@ -1,9 +1,9 @@
-"""Configuration mapping between FastAPI settings and ingestion pipeline."""
+"""Configuration mapper for translating FastAPI settings to ingestion pipeline config."""
 
 import logging
-from typing import Optional
+from typing import Dict, Any, Optional
 
-from ..config import Settings
+from kb_event_handler.config import Settings
 
 logger = logging.getLogger(__name__)
 

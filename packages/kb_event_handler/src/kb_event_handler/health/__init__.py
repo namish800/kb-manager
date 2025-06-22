@@ -1,5 +1,5 @@
-"""Health check module for the KB Event Handler."""
+"""Health check module."""
 
-from .router import router
+from kb_event_handler.health.router import router
 
 __all__ = ["router"] 

@@ -5,9 +5,9 @@ from datetime import datetime
 
 from fastapi import APIRouter, status
 
-from ..config import settings
-from ..database import health_check_database
-from .schemas import HealthStatus
+from kb_event_handler.config import settings
+from kb_event_handler.database import health_check_database
+from kb_event_handler.health.schemas import HealthStatus
 
 
 logger = logging.getLogger(__name__)

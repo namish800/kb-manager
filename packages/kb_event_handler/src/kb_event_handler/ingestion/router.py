@@ -6,9 +6,9 @@ from typing import Annotated
 from fastapi import APIRouter, BackgroundTasks, Depends, status
 from fastapi.responses import JSONResponse
 
-from .schemas import IngestionRequest, IngestionJobResponse
-from .job_utils import JobManager
-from ..dependencies import (
+from kb_event_handler.ingestion.schemas import IngestionRequest, IngestionJobResponse
+from kb_event_handler.ingestion.job_utils import JobManager
+from kb_event_handler.dependencies import (
     ValidatedTenantIdDep,
     CorrelationIdDep,
     JobRepoDep,
@@ -16,7 +16,7 @@ from ..dependencies import (
     FileValidationServiceDep,
     BackgroundJobProcessorDep,
 )
-from ..exceptions import ValidationError
+from kb_event_handler.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 

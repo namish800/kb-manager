@@ -5,8 +5,8 @@ from typing import Optional
 
 from supabase import Client
 
-from ..config import Settings
-from ..exceptions import StorageError
+from kb_event_handler.config import Settings
+from kb_event_handler.exceptions import StorageError
 
 logger = logging.getLogger(__name__)
 

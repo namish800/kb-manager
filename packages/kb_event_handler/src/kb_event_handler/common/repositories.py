@@ -7,7 +7,7 @@ from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 
 from supabase import Client
 
-from .models import (
+from kb_event_handler.common.models import (
     KBFile,
     KBJob,
     KBJobCreate, 
@@ -16,8 +16,8 @@ from .models import (
     KnowledgeBaseUpdate,
     Tenant,
 )
-from .supabase_client import supabase_client
-from ..exceptions import ResourceNotFoundError, TenantNotFoundError
+from kb_event_handler.common.supabase_client import supabase_client
+from kb_event_handler.exceptions import ResourceNotFoundError, TenantNotFoundError
 
 
 logger = logging.getLogger(__name__)

@@ -5,17 +5,18 @@ import logging
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 
-from .ingestion_service import IngestionService
-from .schemas import IngestionResult
-from ..common import (
+from kb_event_handler.ingestion.ingestion_service import IngestionService
+from kb_event_handler.ingestion.schemas import IngestionResult
+from kb_event_handler.common import (
     TempFileManager,
     FileValidationService,
     JobRepository,
     FileRepository,
     KBJob,
     KBJobUpdate,
+    KBFile,
 )
-from ..exceptions import KBEventHandlerException
+from kb_event_handler.exceptions import KBEventHandlerException
 
 logger = logging.getLogger(__name__)
 

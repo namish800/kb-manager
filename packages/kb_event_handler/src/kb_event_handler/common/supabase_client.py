@@ -5,8 +5,8 @@ from typing import Any, Dict, Optional
 
 from supabase import Client, create_client
 
-from ..config import settings
-from ..exceptions import KBEventHandlerException
+from kb_event_handler.config import settings
+from kb_event_handler.exceptions import KBEventHandlerException
 
 
 logger = logging.getLogger(__name__)

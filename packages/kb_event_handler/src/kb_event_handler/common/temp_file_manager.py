@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Optional, AsyncGenerator
 from contextlib import asynccontextmanager
 
-from .storage_client import StorageClient
-from ..exceptions import StorageError
+from kb_event_handler.common.storage_client import StorageClient
+from kb_event_handler.exceptions import StorageError
 
 logger = logging.getLogger(__name__)
 

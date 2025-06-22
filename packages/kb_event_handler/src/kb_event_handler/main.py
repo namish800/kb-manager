@@ -6,17 +6,17 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from .config import configure_logging, settings
-from .database import close_database, init_database
-from .exceptions import (
+from kb_event_handler.config import configure_logging, settings
+from kb_event_handler.database import close_database, init_database
+from kb_event_handler.exceptions import (
     KBEventHandlerException,
     general_exception_handler,
     http_exception_handler,
     kb_event_handler_exception_handler,
 )
-from .health import router as health_router
-from .ingestion import router as ingestion_router
-from .middleware import CorrelationIdMiddleware, RequestLoggingMiddleware
+from kb_event_handler.health import router as health_router
+from kb_event_handler.ingestion import router as ingestion_router
+from kb_event_handler.middleware import CorrelationIdMiddleware, RequestLoggingMiddleware
 
 
 logger = logging.getLogger(__name__)

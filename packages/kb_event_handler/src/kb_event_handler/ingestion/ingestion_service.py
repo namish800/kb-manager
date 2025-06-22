@@ -1,14 +1,14 @@
-"""Ingestion service wrapper for the kb_ingestion pipeline."""
+"""Ingestion service for processing files using the kb_ingestion pipeline."""
 
 import asyncio
 import logging
 import time
 from typing import Optional, Dict, Any
 
-from .config_mapper import IngestionConfigMapper
-from .schemas import IngestionResult
-from ..config import Settings
-from ..exceptions import KBEventHandlerException
+from kb_event_handler.ingestion.config_mapper import IngestionConfigMapper
+from kb_event_handler.ingestion.schemas import IngestionResult
+from kb_event_handler.config import Settings
+from kb_event_handler.exceptions import KBEventHandlerException
 
 logger = logging.getLogger(__name__)
 

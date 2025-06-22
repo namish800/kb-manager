@@ -4,15 +4,15 @@ import logging
 from datetime import datetime, timezone
 from typing import Optional
 
-from ..common import (
+from kb_event_handler.common import (
     JobRepository,
     KnowledgeBaseRepository,
     KBJob,
     KBJobCreate,
     KnowledgeBase,
 )
-from ..exceptions import ValidationError, ResourceNotFoundError
-from .schemas import IngestionJobResponse, IngestionJobStatus
+from kb_event_handler.exceptions import ValidationError, ResourceNotFoundError
+from kb_event_handler.ingestion.schemas import IngestionJobResponse, IngestionJobStatus
 
 logger = logging.getLogger(__name__)
 
@@ -70,8 +70,7 @@ class JobManager:
             created_at=datetime.now(timezone.utc),
         )
 
-        # TODO: Need to use create_job instead of create
-        job = await self.job_repository.create(job_data)
+        job = await self.job_repository.create_job(job_data, tenant_id)
         
         logger.info(f"Created ingestion job {job.id} for file: {filename}")
         return job

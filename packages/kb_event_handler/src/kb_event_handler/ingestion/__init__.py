@@ -1,6 +1,6 @@
 """Ingestion module for file processing operations."""
 
-from .schemas import (
+from kb_event_handler.ingestion.schemas import (
     IngestionRequest,
     IngestionJobResponse,
     IngestionResult,
@@ -9,11 +9,11 @@ from .schemas import (
     BatchIngestionRequest,
     BatchIngestionResponse,
 )
-from .config_mapper import IngestionConfigMapper
-from .ingestion_service import IngestionService
-from .background_processor import BackgroundJobProcessor
-from .job_utils import JobManager
-from .router import router
+from kb_event_handler.ingestion.config_mapper import IngestionConfigMapper
+from kb_event_handler.ingestion.ingestion_service import IngestionService
+from kb_event_handler.ingestion.background_processor import BackgroundJobProcessor
+from kb_event_handler.ingestion.job_utils import JobManager
+from kb_event_handler.ingestion.router import router
 
 __all__ = [
     # Schemas

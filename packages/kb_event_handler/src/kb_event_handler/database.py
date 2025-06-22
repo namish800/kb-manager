@@ -2,13 +2,13 @@
 
 import logging
 
-from .common.repositories import (
+from kb_event_handler.common.repositories import (
     file_repository,
     job_repository,
     knowledge_base_repository,
     tenant_repository,
 )
-from .common.supabase_client import supabase_client
+from kb_event_handler.common.supabase_client import supabase_client
 
 
 logger = logging.getLogger(__name__)

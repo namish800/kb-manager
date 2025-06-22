@@ -8,10 +8,10 @@ from fastapi import Depends, Header, Request
 from fastapi.security import HTTPBearer
 from kb_event_handler.common.repositories import FileRepository, JobRepository
 
-from .config import settings
-from .exceptions import AuthenticationError, ValidationError
+from kb_event_handler.config import settings
+from kb_event_handler.exceptions import AuthenticationError, ValidationError
 # Import database repositories
-from .database import (
+from kb_event_handler.database import (
     file_repository,
     job_repository, 
     knowledge_base_repository,
@@ -19,14 +19,14 @@ from .database import (
     supabase_client,
 )
 # Import file handling services
-from .common import (
+from kb_event_handler.common import (
     StorageClient,
     FileValidationService,
     TempFileManager,
 )
 # Import ingestion services
-from .ingestion.ingestion_service import IngestionService
-from .ingestion.background_processor import BackgroundJobProcessor
+from kb_event_handler.ingestion.ingestion_service import IngestionService
+from kb_event_handler.ingestion.background_processor import BackgroundJobProcessor
 
 
 logger = logging.getLogger(__name__)
