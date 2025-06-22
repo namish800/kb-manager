@@ -769,12 +769,14 @@ name = "kb-management"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "kb-event-handler" },
     { name = "kb-ingestion" },
     { name = "kb-retriever" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "kb-event-handler", editable = "packages/kb_event_handler" },
     { name = "kb-ingestion", editable = "packages/kb_ingestion" },
     { name = "kb-retriever", editable = "packages/kb_retriever" },
 ]

@@ -4,12 +4,14 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
     "kb_ingestion",
-    "kb_retriever"
+    "kb_retriever",
+    "kb_event_handler"
 ]
 
 [tool.uv.sources]
 kb_ingestion = { workspace = true }
 kb_retriever = { workspace = true }
+kb_event_handler = { workspace = true }
 
 [tool.setuptools]
 packages = []      # root is just a meta project
