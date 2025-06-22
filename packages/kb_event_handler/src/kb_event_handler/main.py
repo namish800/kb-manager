@@ -67,9 +67,9 @@ def create_app() -> FastAPI:
         description="FastAPI service for knowledge base ingestion operations",
         version="0.1.0",
         lifespan=lifespan,
-        openapi_url=f"/api/{settings.api_version}/openapi.json" if show_docs else None,
-        docs_url=f"/api/{settings.api_version}/docs" if show_docs else None,
-        redoc_url=f"/api/{settings.api_version}/redoc" if show_docs else None,
+        openapi_url=f"/openapi.json" if show_docs else None,
+        docs_url=f"/docs" if show_docs else None,
+        redoc_url=f"/redoc" if show_docs else None,
     )
     
     # Add middleware (order matters - added in reverse order of execution)

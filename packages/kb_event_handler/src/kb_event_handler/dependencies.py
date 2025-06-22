@@ -152,9 +152,9 @@ async def get_background_job_processor(
 
 # Dependency aliases for common use
 CorrelationIdDep = Annotated[str, Depends(get_correlation_id)]
-ApiKeyDep = Annotated[str, Depends(authenticate_api_key)]
-TenantIdDep = Annotated[int, Depends(get_tenant_id)]
-ValidatedTenantIdDep = Annotated[int, Depends(validate_tenant_access)]
+ApiKeyDep = Annotated[str, Depends(authenticate_api_key)] # TODO: Move this to middleware
+TenantIdDep = Annotated[int, Depends(get_tenant_id)] # TODO: Move this to middleware
+ValidatedTenantIdDep = Annotated[int, Depends(validate_tenant_access)] # TODO: Move this to middleware
 
 # Repository dependencies  
 TenantRepoDep = Annotated[tenant_repository.__class__, Depends(get_tenant_repository)]

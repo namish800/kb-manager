@@ -69,7 +69,8 @@ class JobManager:
             mime_type=mime_type,
             created_at=datetime.now(timezone.utc),
         )
-        
+
+        # TODO: Need to use create_job instead of create
         job = await self.job_repository.create(job_data)
         
         logger.info(f"Created ingestion job {job.id} for file: {filename}")

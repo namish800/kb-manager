@@ -150,6 +150,7 @@ class IngestionService:
             from kb_ingestion.models import FileWrapper
             
             # Create FileWrapper
+            #TODO: Bug here, FileWrapper accepts content not the file path
             file_wrapper = FileWrapper(
                 file_path=temp_file_path,
                 filename=filename,
