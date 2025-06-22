@@ -9,6 +9,13 @@ from fastapi.security import HTTPBearer
 
 from .config import settings
 from .exceptions import AuthenticationError, ValidationError
+# Import database repositories
+from .database import (
+    file_repository,
+    job_repository, 
+    knowledge_base_repository,
+    tenant_repository,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -58,7 +65,45 @@ async def get_tenant_id(
         )
 
 
+async def validate_tenant_access(
+    tenant_id: Annotated[int, Depends(get_tenant_id)],
+    _: Annotated[str, Depends(authenticate_api_key)],  # Ensure API key is valid
+):
+    """Validate that the tenant exists and user has access."""
+    # Validate tenant exists in database
+    await tenant_repository.validate_tenant_exists(tenant_id)
+    return tenant_id
+
+
+# Database dependencies
+async def get_tenant_repository():
+    """Get tenant repository instance."""
+    return tenant_repository
+
+
+async def get_job_repository():
+    """Get job repository instance."""
+    return job_repository
+
+
+async def get_knowledge_base_repository():
+    """Get knowledge base repository instance."""
+    return knowledge_base_repository
+
+
+async def get_file_repository():
+    """Get file repository instance."""
+    return file_repository
+
+
 # Dependency aliases for common use
 CorrelationIdDep = Annotated[str, Depends(get_correlation_id)]
 ApiKeyDep = Annotated[str, Depends(authenticate_api_key)]
-TenantIdDep = Annotated[int, Depends(get_tenant_id)] 
+TenantIdDep = Annotated[int, Depends(get_tenant_id)]
+ValidatedTenantIdDep = Annotated[int, Depends(validate_tenant_access)]
+
+# Repository dependencies  
+TenantRepoDep = Annotated[tenant_repository.__class__, Depends(get_tenant_repository)]
+JobRepoDep = Annotated[job_repository.__class__, Depends(get_job_repository)]
+KnowledgeBaseRepoDep = Annotated[knowledge_base_repository.__class__, Depends(get_knowledge_base_repository)]
+FileRepoDep = Annotated[file_repository.__class__, Depends(get_file_repository)] 

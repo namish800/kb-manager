@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import configure_logging, settings
+from .database import close_database, init_database
 from .exceptions import (
     KBEventHandlerException,
     general_exception_handler,
@@ -28,15 +29,28 @@ async def lifespan(app: FastAPI):
     logger.info(f"Environment: {settings.environment}")
     logger.info(f"API Version: {settings.api_version}")
     
-    # TODO: Add startup checks for external dependencies in future phases
-    # - Supabase connection test (Phase 2)
-    # - OpenAI API key validation (Phase 4)
-    # - Pinecone connection test (Phase 4)
+    try:
+        # Initialize database connections
+        await init_database()
+        logger.info("Database initialization completed")
+        
+        # TODO: Add other startup checks in future phases
+        # - OpenAI API key validation (Phase 4)
+        # - Pinecone connection test (Phase 4)
+        
+    except Exception as e:
+        logger.error(f"Startup failed: {e}")
+        raise
     
     yield
     
     # Shutdown
     logger.info("Shutting down KB Event Handler API")
+    try:
+        await close_database()
+        logger.info("Database connections closed")
+    except Exception as e:
+        logger.error(f"Shutdown error: {e}")
 
 
 def create_app() -> FastAPI:
