@@ -12,9 +12,8 @@ from .schemas import (
 from .config_mapper import IngestionConfigMapper
 from .ingestion_service import IngestionService
 from .background_processor import BackgroundJobProcessor
-
-# TODO: Import router when created in Phase 5
-# from .router import router
+from .job_utils import JobManager
+from .router import router
 
 __all__ = [
     # Schemas
@@ -29,6 +28,7 @@ __all__ = [
     "IngestionConfigMapper",
     "IngestionService",
     "BackgroundJobProcessor",
-    # TODO: Add router in Phase 5
-    # "router",
+    "JobManager",
+    # Router
+    "router",
 ] 

@@ -15,6 +15,7 @@ from .exceptions import (
     kb_event_handler_exception_handler,
 )
 from .health import router as health_router
+from .ingestion import router as ingestion_router
 from .middleware import CorrelationIdMiddleware, RequestLoggingMiddleware
 
 
@@ -99,11 +100,10 @@ def create_app() -> FastAPI:
         prefix=f"/api/{settings.api_version}",
     )
     
-    # TODO: Include ingestion router in Phase 5
-    # app.include_router(
-    #     ingestion_router,
-    #     prefix=f"/api/{settings.api_version}",
-    # )
+    app.include_router(
+        ingestion_router,
+        prefix=f"/api/{settings.api_version}",
+    )
     
     # Root redirect
     @app.get("/", include_in_schema=False)
