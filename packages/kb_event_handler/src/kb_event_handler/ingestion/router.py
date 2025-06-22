@@ -49,10 +49,11 @@ JobManagerDep = Annotated[JobManager, Depends(get_job_manager)]
     status_code=status.HTTP_202_ACCEPTED,
     summary="Start file ingestion",
     description="Start processing a file for ingestion into a knowledge base. "
-                "The file must already be uploaded to storage. Returns a job ID for tracking progress.",
+                "The file must already be uploaded to storage. Returns a job ID for tracking progress. "
+                "If the knowledge base is already being processed, returns the existing job instead of creating a new one.",
     responses={
         202: {
-            "description": "Ingestion job created successfully",
+            "description": "Ingestion job created successfully or existing job returned",
             "content": {
                 "application/json": {
                     "example": {
@@ -111,12 +112,19 @@ async def ingest_file(
     This endpoint creates a background job to process a file for ingestion into
     a knowledge base. The file must already be uploaded to storage.
     
+    **Duplicate Prevention:**
+    If the knowledge base is already being processed by another job, this endpoint
+    will return the existing job instead of creating a new one. This prevents
+    multiple simultaneous ingestion jobs on the same knowledge base.
+    
     **Process:**
     1. Validates the knowledge base exists and belongs to the tenant
-    2. Validates the file exists and is supported
-    3. Creates a job record with status "queued"
-    4. Starts background processing
-    5. Returns job ID for status tracking
+    2. Checks if the knowledge base is already being processed
+    3. If already processing, returns the existing job details
+    4. If not processing, validates the file exists and is supported
+    5. Creates a job record with status "queued"
+    6. Starts background processing
+    7. Returns job ID for status tracking
     
     **File Requirements:**
     - Must be uploaded to storage first
@@ -147,7 +155,26 @@ async def ingest_file(
                 }
             )
         
-        # Step 2: Create job record (this also validates KB ownership)
+        # Step 2: Check if knowledge base is already being processed
+        logger.info(f"Checking if knowledge base {request.knowledge_base_id} is already being processed")
+        
+        existing_job = await job_manager.check_active_jobs_for_kb(
+            knowledge_base_id=request.knowledge_base_id,
+            tenant_id=tenant_id
+        )
+        
+        if existing_job:
+            logger.info(
+                f"Knowledge base {request.knowledge_base_id} is already being processed by job {existing_job.id}. "
+                f"Returning existing job instead of creating new one.",
+                extra={"correlation_id": correlation_id}
+            )
+            
+            # Return the existing job response
+            response = job_manager.convert_job_to_response(existing_job)
+            return response
+        
+        # Step 3: Create job record (this also validates KB ownership)
         logger.info(f"Creating job record for knowledge base: {request.knowledge_base_id}")
         
         job = await job_manager.create_ingestion_job(
@@ -155,7 +182,7 @@ async def ingest_file(
             knowledge_base_id=request.knowledge_base_id,
         )
         
-        # Step 3: Queue background processing task
+        # Step 4: Queue background processing task
         logger.info(f"Queueing background task for job {job.id}")
         
         background_tasks.add_task(
@@ -173,7 +200,7 @@ async def ingest_file(
             }
         )
         
-        # Step 4: Return job response
+        # Step 5: Return job response
         response = job_manager.convert_job_to_response(job)
         
         logger.info(

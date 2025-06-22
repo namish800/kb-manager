@@ -173,4 +173,33 @@ class JobManager:
             ResourceNotFoundError: If job doesn't exist
             ValidationError: If job doesn't belong to tenant
         """
-        return await self.validate_job_access(job_id, tenant_id) 
+        return await self.validate_job_access(job_id, tenant_id)
+    
+    async def check_active_jobs_for_kb(
+        self,
+        knowledge_base_id: int,
+        tenant_id: int,
+    ) -> Optional[KBJob]:
+        """
+        Check if there are any active jobs for a knowledge base.
+        
+        Args:
+            knowledge_base_id: Knowledge base ID
+            tenant_id: Tenant ID
+            
+        Returns:
+            First active job if found, None otherwise
+        """
+        logger.info(f"Checking for active jobs for knowledge base: {knowledge_base_id}")
+        
+        active_jobs = await self.job_repository.get_active_jobs_for_kb(
+            knowledge_base_id=knowledge_base_id,
+            tenant_id=tenant_id
+        )
+        
+        if active_jobs:
+            logger.info(f"Found {len(active_jobs)} active job(s) for knowledge base {knowledge_base_id}")
+            return active_jobs[0]  # Return the first active job
+        
+        logger.info(f"No active jobs found for knowledge base {knowledge_base_id}")
+        return None 

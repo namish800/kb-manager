@@ -247,6 +247,23 @@ class JobRepository(BaseRepository[KBJob]):
         except Exception as e:
             logger.error(f"Error getting active jobs for tenant {tenant_id}: {e}")
             raise
+    
+    async def get_active_jobs_for_kb(self, knowledge_base_id: int, tenant_id: int) -> List[KBJob]:
+        """Get all active (queued or processing) jobs for a specific knowledge base."""
+        try:
+            result = (
+                self.client.from_(self.table_name)
+                .select("*")
+                .eq("knowledge_base_id", knowledge_base_id)
+                .in_("status", ["queued", "processing"])
+                .execute()
+            )
+            
+            return [self._map_to_model(row) for row in result.data or []]
+            
+        except Exception as e:
+            logger.error(f"Error getting active jobs for KB {knowledge_base_id}: {e}")
+            raise
 
 
 class KnowledgeBaseRepository(BaseRepository[KnowledgeBase]):
