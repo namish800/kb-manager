@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     # Supabase Configuration
     supabase_url: str = Field(..., description="Supabase project URL")
     supabase_service_key: str = Field(..., description="Supabase service role key")
+    supabase_storage_bucket: str = Field(default="files", description="Supabase storage bucket name")
 
     # OpenAI Configuration
     openai_api_key: str = Field(..., description="OpenAI API key")

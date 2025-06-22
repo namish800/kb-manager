@@ -77,6 +77,18 @@ class ResourceNotFoundError(KBEventHandlerException):
         )
 
 
+class StorageError(KBEventHandlerException):
+    """Storage operation errors."""
+
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(
+            message=message,
+            error_code="STORAGE_ERROR",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            details=details,
+        )
+
+
 # Exception Handlers
 async def kb_event_handler_exception_handler(
     request: Request, exc: KBEventHandlerException

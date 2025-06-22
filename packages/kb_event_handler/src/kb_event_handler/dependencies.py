@@ -15,6 +15,13 @@ from .database import (
     job_repository, 
     knowledge_base_repository,
     tenant_repository,
+    supabase_client,
+)
+# Import file handling services
+from .common import (
+    StorageClient,
+    FileValidationService,
+    TempFileManager,
 )
 
 
@@ -96,6 +103,26 @@ async def get_file_repository():
     return file_repository
 
 
+# File handling service dependencies
+async def get_storage_client():
+    """Get storage client instance."""
+    return StorageClient(supabase_client.client, settings)
+
+
+async def get_file_validation_service(
+    storage_client: Annotated[StorageClient, Depends(get_storage_client)]
+):
+    """Get file validation service instance."""
+    return FileValidationService(storage_client)
+
+
+async def get_temp_file_manager(
+    storage_client: Annotated[StorageClient, Depends(get_storage_client)]
+):
+    """Get temporary file manager instance.""" 
+    return TempFileManager(storage_client, settings.temp_dir)
+
+
 # Dependency aliases for common use
 CorrelationIdDep = Annotated[str, Depends(get_correlation_id)]
 ApiKeyDep = Annotated[str, Depends(authenticate_api_key)]
@@ -106,4 +133,9 @@ ValidatedTenantIdDep = Annotated[int, Depends(validate_tenant_access)]
 TenantRepoDep = Annotated[tenant_repository.__class__, Depends(get_tenant_repository)]
 JobRepoDep = Annotated[job_repository.__class__, Depends(get_job_repository)]
 KnowledgeBaseRepoDep = Annotated[knowledge_base_repository.__class__, Depends(get_knowledge_base_repository)]
-FileRepoDep = Annotated[file_repository.__class__, Depends(get_file_repository)] 
+FileRepoDep = Annotated[file_repository.__class__, Depends(get_file_repository)]
+
+# File service dependencies
+StorageClientDep = Annotated[StorageClient, Depends(get_storage_client)]
+FileValidationServiceDep = Annotated[FileValidationService, Depends(get_file_validation_service)]
+TempFileManagerDep = Annotated[TempFileManager, Depends(get_temp_file_manager)] 
