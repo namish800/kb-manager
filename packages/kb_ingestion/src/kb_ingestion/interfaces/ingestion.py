@@ -27,7 +27,7 @@ class IIngestionPipeline(ABC):
         pass
     
     @abstractmethod
-    async def validate_source(self, source: FileWrapper) -> bool:
+    async def validate_source(self, source: FileWrapper | WebsiteWrapper) -> bool:
         """Validate if source can be processed by this pipeline.
         
         Args:

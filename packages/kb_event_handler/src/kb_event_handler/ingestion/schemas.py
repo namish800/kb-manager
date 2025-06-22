@@ -17,9 +17,10 @@ class IngestionJobStatus(str, Enum):
 
 class IngestionRequest(BaseModel):
     """Request to start file ingestion."""
-    
-    file_path: str = Field(..., description="Path to file in storage")
-    filename: str = Field(..., description="Original filename")
+    resource_type: str = Field(..., description="Type of resource to ingest (document, website)")
+    urls: Optional[List[str]] = Field(None, description="List of URLs to ingest")
+    file_path: Optional[str] = Field(None, description="Path to file in storage")
+    filename: Optional[str] = Field(None, description="Original filename")
     knowledge_base_id: int = Field(..., description="Target knowledge base ID")
     mime_type: Optional[str] = Field(None, description="File MIME type")
     
@@ -30,6 +31,8 @@ class IngestionRequest(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
+                "resource_type": "document",
+                "urls": ["https://www.google.com", "https://www.wikipedia.org"],
                 "file_path": "tenant_123/kb_456/documents/report.pdf",
                 "filename": "quarterly_report.pdf",
                 "knowledge_base_id": 456,

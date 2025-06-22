@@ -25,8 +25,19 @@ from kb_event_handler.common import (
     TempFileManager,
 )
 # Import ingestion services
-from kb_event_handler.ingestion.ingestion_service import IngestionService
+from kb_event_handler.ingestion.ingestion_service import DocumentIngestionService, WebsiteIngestionService
 from kb_event_handler.ingestion.background_processor import BackgroundJobProcessor
+from kb_event_handler.ingestion.interfaces.ingestion_service import IIngestionService
+from kb_event_handler.ingestion.interfaces.ipipeline_factory import IIngestionPipelineFactory
+from kb_event_handler.ingestion.pipeline_factory import IngestionPipelineFactory
+from kb_ingestion.interfaces.ingestion import IIngestionPipeline
+from kb_ingestion.llamaindex_document_ingestion import LlamaIndexDocumentIngestionToPinecone
+from kb_ingestion.llamaindex_website_ingestion import LlamaIndexWebsiteIngestionToPinecone
+from kb_ingestion.models.config import EmbeddingConfig, PipelineConfig
+from llama_cloud_services import LlamaParse
+from llama_index.vector_stores.pinecone import PineconeVectorStore
+from pinecone import Pinecone
+from firecrawl import FirecrawlApp
 
 
 logger = logging.getLogger(__name__)
@@ -126,24 +137,95 @@ async def get_temp_file_manager(
     """Get temporary file manager instance.""" 
     return TempFileManager(storage_client, settings.temp_dir)
 
+# Ingestion Pipelines
+def get_firecrawl_reader():
+    return FirecrawlApp(api_key=settings.firecrawl_api_key)
 
-# Ingestion service dependencies
-async def get_ingestion_service():
-    """Get ingestion service instance."""
-    return IngestionService(settings)
+def get_llama_parse():
+    return LlamaParse(api_key=settings.llama_parse_api_key)
+
+def get_pinecone_vs():
+    # Initialize Pinecone
+    pc = Pinecone(api_key=settings.pinecone_api_key)
+    pinecone_index = pc.Index(settings.pinecone_index_name)
+    vector_store = PineconeVectorStore(
+        pinecone_index=pinecone_index,
+    )
+    return vector_store
+
+async def get_document_ingestion_pipeline() -> IIngestionPipeline:
+    """Get document ingestion pipeline instance."""
+    openai_api_key = settings.openai_api_key
+    embedding_config = EmbeddingConfig(
+        api_key=openai_api_key, 
+        model_name=settings.embedding_model
+    )
+
+    config = PipelineConfig(
+        embedding_config=embedding_config,
+        chunk_size=settings.chunk_size,
+        chunk_overlap=settings.chunk_overlap,
+    )
+
+    document_parser = get_llama_parse()
+    pinecone_vs = get_pinecone_vs()
+    
+    return LlamaIndexDocumentIngestionToPinecone(config, pinecone_vs, document_parser)
+
+async def get_website_ingestion_pipeline() -> IIngestionPipeline:
+    """Get website ingestion pipeline instance."""
+    openai_api_key = settings.openai_api_key
+    embedding_config = EmbeddingConfig(
+        api_key=openai_api_key, 
+        model_name=settings.embedding_model
+    )
+
+    config = PipelineConfig(
+        embedding_config=embedding_config,
+        chunk_size=settings.chunk_size,
+        chunk_overlap=settings.chunk_overlap,
+    )
+
+    firecrawl_reader = get_firecrawl_reader()
+    pinecone_vs = get_pinecone_vs()
+
+    return LlamaIndexWebsiteIngestionToPinecone(config, pinecone_vs, firecrawl_reader)
+
+async def get_ingestion_pipeline_factory() -> IIngestionPipelineFactory:
+    """Get ingestion pipeline factory instance."""
+    document_ingestion_pipeline = await get_document_ingestion_pipeline()
+    website_ingestion_pipeline = await get_website_ingestion_pipeline()
+    return IngestionPipelineFactory(
+        pipelines_map={
+            "document": document_ingestion_pipeline,
+            "website": website_ingestion_pipeline
+        }
+    )
+
+async def get_document_ingestion_service(
+    temp_file_manager: Annotated[TempFileManager, Depends(get_temp_file_manager)]
+) -> IIngestionService:
+    """Get document ingestion service instance."""
+    pipeline_factory = await get_ingestion_pipeline_factory()
+    return DocumentIngestionService(pipeline_factory, temp_file_manager)
+
+async def get_website_ingestion_service() -> IIngestionService:
+    """Get website ingestion service instance."""
+    pipeline_factory = await get_ingestion_pipeline_factory()
+    return WebsiteIngestionService(pipeline_factory)
 
 
 async def get_background_job_processor(
-    ingestion_service: Annotated[IngestionService, Depends(get_ingestion_service)],
-    temp_file_manager: Annotated[TempFileManager, Depends(get_temp_file_manager)],
+    document_ingestion_service: Annotated[IIngestionService, Depends(get_document_ingestion_service)],
+    website_ingestion_service: Annotated[IIngestionService, Depends(get_website_ingestion_service)],
     file_validation_service: Annotated[FileValidationService, Depends(get_file_validation_service)],
     job_repository: Annotated[JobRepository, Depends(get_job_repository)],
     file_repository: Annotated[FileRepository, Depends(get_file_repository)],
 ):
     """Get background job processor instance."""
     return BackgroundJobProcessor(
-        ingestion_service=ingestion_service,
-        temp_file_manager=temp_file_manager,
+        document_ingestion_service=document_ingestion_service,
+        website_ingestion_service=website_ingestion_service,
         file_validation_service=file_validation_service,
         job_repository=job_repository,
         file_repository=file_repository,
@@ -168,5 +250,6 @@ FileValidationServiceDep = Annotated[FileValidationService, Depends(get_file_val
 TempFileManagerDep = Annotated[TempFileManager, Depends(get_temp_file_manager)]
 
 # Ingestion service dependencies
-IngestionServiceDep = Annotated[IngestionService, Depends(get_ingestion_service)]
+DocumentIngestionServiceDep = Annotated[IIngestionService, Depends(get_document_ingestion_service)]
+WebsiteIngestionServiceDep = Annotated[IIngestionService, Depends(get_website_ingestion_service)]
 BackgroundJobProcessorDep = Annotated[BackgroundJobProcessor, Depends(get_background_job_processor)] 

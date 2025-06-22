@@ -32,9 +32,6 @@ class JobManager:
         self,
         tenant_id: int,
         knowledge_base_id: int,
-        file_path: str,
-        filename: str,
-        mime_type: Optional[str] = None,
     ) -> KBJob:
         """
         Create a new ingestion job record.
@@ -42,9 +39,6 @@ class JobManager:
         Args:
             tenant_id: Tenant ID
             knowledge_base_id: Target knowledge base ID
-            file_path: Path to file in storage
-            filename: Original filename
-            mime_type: File MIME type
             
         Returns:
             Created job record
@@ -53,26 +47,20 @@ class JobManager:
             ResourceNotFoundError: If knowledge base doesn't exist
             ValidationError: If knowledge base doesn't belong to tenant
         """
-        logger.info(f"Creating ingestion job for file: {filename} (tenant: {tenant_id}, kb: {knowledge_base_id})")
+        logger.info(f"Creating ingestion job for tenant: {tenant_id}, kb: {knowledge_base_id}")
         
         # Validate knowledge base exists and belongs to tenant
         await self._validate_knowledge_base_access(tenant_id, knowledge_base_id)
         
         # Create job record
         job_data = KBJobCreate(
-            tenant_id=tenant_id,
             knowledge_base_id=knowledge_base_id,
             job_type="ingestion",
-            status="queued",
-            file_path=file_path,
-            filename=filename,
-            mime_type=mime_type,
-            created_at=datetime.now(timezone.utc),
         )
 
-        job = await self.job_repository.create_job(job_data, tenant_id)
+        job = await self.job_repository.create_job(job_data)
         
-        logger.info(f"Created ingestion job {job.id} for file: {filename}")
+        logger.info(f"Created ingestion job {job.id}")
         return job
     
     async def _validate_knowledge_base_access(
@@ -161,8 +149,8 @@ class JobManager:
             job_id=job.id,
             status=IngestionJobStatus(job.status),
             created_at=job.created_at,
-            file_path=job.file_path,
-            filename=job.filename,
+            file_path="", # TODO: Need to add file path to job
+            filename="", # TODO: Need to add filename to job
             knowledge_base_id=job.knowledge_base_id,
         )
     

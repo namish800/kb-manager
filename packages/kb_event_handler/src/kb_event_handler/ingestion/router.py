@@ -22,7 +22,6 @@ logger = logging.getLogger(__name__)
 
 # Create router
 router = APIRouter(
-    prefix="/v1",
     tags=["ingestion"],
     responses={
         401: {"description": "Authentication failed"},
@@ -135,37 +134,25 @@ async def ingest_file(
     )
     
     try:
-        # Step 1: Validate file exists and is supported
-        logger.info(f"Validating file: {request.file_path}")
+        # Step 1: Validate if the resource is atleast a file or a website
+        logger.info(f"Validating resource: {request.file_path} and {request.urls}")
         
-        validation_result = await file_validation.validate_file(
-            filename=request.filename,
-            file_path=request.file_path,
-            mime_type=request.mime_type,
-            check_existence=True
-        )
-        
-        if not validation_result.is_valid:
-            logger.warning(f"File validation failed: {validation_result.errors}")
+        if request.file_path is None and request.urls is None:
+            logger.error(f"Either file_path or urls must be provided")
             raise ValidationError(
-                f"File validation failed: {', '.join(validation_result.errors)}",
+                "Either file_path or urls must be provided",
                 details={
-                    "filename": request.filename,
                     "file_path": request.file_path,
-                    "errors": validation_result.errors,
-                    "metadata": validation_result.metadata,
+                    "urls": request.urls,
                 }
             )
         
         # Step 2: Create job record (this also validates KB ownership)
-        logger.info(f"Creating job record for file: {request.filename}")
+        logger.info(f"Creating job record for knowledge base: {request.knowledge_base_id}")
         
         job = await job_manager.create_ingestion_job(
             tenant_id=tenant_id,
             knowledge_base_id=request.knowledge_base_id,
-            file_path=request.file_path,
-            filename=request.filename,
-            mime_type=request.mime_type,
         )
         
         # Step 3: Queue background processing task
@@ -174,16 +161,15 @@ async def ingest_file(
         background_tasks.add_task(
             processor.process_ingestion_job,
             job_id=job.id,
-            file_path=request.file_path,
-            filename=request.filename,
+            urls=request.urls, # this is optional
+            resource_type=request.resource_type,
+            file_path=request.file_path, # this is optional
+            filename=request.filename, # this is optional
             tenant_id=tenant_id,
             knowledge_base_id=request.knowledge_base_id,
-            chunk_size=request.chunk_size,
-            chunk_overlap=request.chunk_overlap,
             metadata={
                 "correlation_id": correlation_id,
-                "mime_type": request.mime_type,
-                "file_size_bytes": validation_result.metadata.get("file_size"),
+                "mime_type": request.mime_type, # this is optional
             }
         )
         

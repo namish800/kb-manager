@@ -100,7 +100,7 @@ async def kb_event_handler_exception_handler(
         "KB Event Handler exception occurred",
         extra={
             "error_code": exc.error_code,
-            "message": exc.message,
+            "error_message": exc.message,
             "status_code": exc.status_code,
             "details": exc.details,
             "correlation_id": correlation_id,
@@ -128,7 +128,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
         "HTTP exception occurred",
         extra={
             "status_code": exc.status_code,
-            "detail": exc.detail,
+            "error_detail": exc.detail,
             "correlation_id": correlation_id,
             "path": request.url.path,
             "method": request.method,
@@ -157,7 +157,7 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
             "correlation_id": correlation_id,
             "path": request.url.path,
             "method": request.method,
-            "traceback": traceback.format_exc(),
+            "error_traceback": traceback.format_exc(),
         },
     )
 

@@ -42,15 +42,19 @@ class Settings(BaseSettings):
     temp_dir: str = Field(default="/tmp", description="Temporary directory for file processing")
     
     # Ingestion Pipeline Configuration
+    llama_parse_api_key: str = Field(..., description="LlamaParse API key")
     chunk_size: int = Field(default=1024, description="Text chunk size for processing")
     chunk_overlap: int = Field(default=200, description="Overlap between chunks")
-    embedding_model: str = Field(default="text-embedding-3-small", description="OpenAI embedding model")
+    embedding_model: str = Field(default="text-embedding-ada-002", description="OpenAI embedding model")
     embedding_dimensions: int = Field(default=1536, description="Embedding vector dimensions")
     
     # Processing Limits
     max_concurrent_jobs: int = Field(default=3, description="Maximum concurrent ingestion jobs")
     job_timeout_minutes: int = Field(default=30, description="Job timeout in minutes")
-    
+
+    # Firecrawl Configuration
+    firecrawl_api_key: str = Field(..., description="Firecrawl API key")
+
     # Vector Store Configuration
     pinecone_environment: str = Field(default="gcp-starter", description="Pinecone environment")
 

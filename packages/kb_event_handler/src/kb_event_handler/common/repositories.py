@@ -2,7 +2,7 @@
 
 import logging
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 
 from supabase import Client
@@ -83,16 +83,24 @@ class BaseRepository(ABC, Generic[T]):
     async def create(self, data: Dict[str, Any], tenant_id: Optional[int] = None) -> T:
         """Create new entity."""
         try:
+            # Convert datetime objects to ISO strings for JSON serialization
+            serialized_data = {}
+            for key, value in data.items():
+                if isinstance(value, datetime):
+                    serialized_data[key] = value.isoformat()
+                else:
+                    serialized_data[key] = value
+            
             # Add tenant_id if provided and table supports it
             if tenant_id is not None and self.table_name != "tenants":
-                data["tenant_id"] = tenant_id
+                serialized_data["tenant_id"] = tenant_id
             
             # Add timestamps
-            now = datetime.utcnow()
-            data["created_at"] = now.isoformat()
-            data["updated_at"] = now.isoformat()
+            now = datetime.now(timezone.utc)
+            serialized_data["created_at"] = now.isoformat()
+            serialized_data["updated_at"] = now.isoformat()
             
-            result = self.client.from_(self.table_name).insert(data).execute()
+            result = self.client.from_(self.table_name).insert(serialized_data).execute()
             
             if result.data and len(result.data) > 0:
                 return self._map_to_model(result.data[0])
@@ -106,10 +114,18 @@ class BaseRepository(ABC, Generic[T]):
     async def update(self, id: Union[int, str], data: Dict[str, Any], tenant_id: Optional[int] = None) -> Optional[T]:
         """Update entity by ID."""
         try:
-            # Add updated timestamp
-            data["updated_at"] = datetime.utcnow().isoformat()
+            # Convert datetime objects to ISO strings for JSON serialization
+            serialized_data = {}
+            for key, value in data.items():
+                if isinstance(value, datetime):
+                    serialized_data[key] = value.isoformat()
+                else:
+                    serialized_data[key] = value
             
-            query = self.client.from_(self.table_name).update(data).eq("id", id)
+            # Add updated timestamp
+            serialized_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+            
+            query = self.client.from_(self.table_name).update(serialized_data).eq("id", id)
             
             # Add tenant scoping if provided
             if tenant_id is not None and self.table_name != "tenants":
@@ -184,21 +200,21 @@ class JobRepository(BaseRepository[KBJob]):
         """Map database row to KBJob model."""
         return KBJob(**data)
     
-    async def create_job(self, job_data: KBJobCreate, tenant_id: int) -> KBJob:
+    async def create_job(self, job_data: KBJobCreate) -> KBJob:
         """Create a new job."""
         data = job_data.model_dump()
-        return await self.create(data, tenant_id)
+        return await self.create(data, None)
     
-    async def update_job(self, job_id: int, job_update: KBJobUpdate, tenant_id: int) -> Optional[KBJob]:
+    async def update_job(self, job_id: int, job_update: KBJobUpdate) -> Optional[KBJob]:
         """Update job status and progress."""
         # Remove None values from update data
         data = {k: v for k, v in job_update.model_dump().items() if v is not None}
         
         if not data:
             # No updates to make
-            return await self.get_by_id(job_id, tenant_id)
+            return await self.get_by_id(job_id)
         
-        return await self.update(job_id, data, tenant_id)
+        return await self.update(job_id, data)
     
     async def get_jobs_by_kb(self, knowledge_base_id: int, tenant_id: int) -> List[KBJob]:
         """Get all jobs for a specific knowledge base."""

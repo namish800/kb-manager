@@ -3,18 +3,16 @@
 import asyncio
 import logging
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List, Optional
 
-from kb_event_handler.ingestion.ingestion_service import IngestionService
+from kb_event_handler.common.file_validation import FileValidationResult
+from kb_event_handler.ingestion.interfaces.ingestion_service import IIngestionService
 from kb_event_handler.ingestion.schemas import IngestionResult
 from kb_event_handler.common import (
-    TempFileManager,
     FileValidationService,
     JobRepository,
     FileRepository,
-    KBJob,
     KBJobUpdate,
-    KBFile,
 )
 from kb_event_handler.exceptions import KBEventHandlerException
 
@@ -26,31 +24,31 @@ class BackgroundJobProcessor:
     
     def __init__(
         self,
-        ingestion_service: IngestionService,
-        temp_file_manager: TempFileManager,
+        document_ingestion_service: IIngestionService,
+        website_ingestion_service: IIngestionService,
         file_validation_service: FileValidationService,
         job_repository: JobRepository,
         file_repository: FileRepository,
     ):
-        self.ingestion_service = ingestion_service
-        self.temp_file_manager = temp_file_manager
+        self.document_ingestion_service = document_ingestion_service
+        self.website_ingestion_service = website_ingestion_service
         self.file_validation_service = file_validation_service
         self.job_repository = job_repository
         self.file_repository = file_repository
         
         # Track running jobs to prevent duplicates
         self._running_jobs: Dict[int, asyncio.Task] = {}
-        self._job_lock = asyncio.Lock()
+        self._job_lock = asyncio.Lock() 
     
     async def process_ingestion_job(
         self,
         job_id: int,
-        file_path: str,
-        filename: str,
+        resource_type: str,
         tenant_id: int,
         knowledge_base_id: int,
-        chunk_size: Optional[int] = None,
-        chunk_overlap: Optional[int] = None,
+        urls: Optional[List[str]] = None,
+        file_path: Optional[str] = None,
+        filename: Optional[str] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
@@ -58,12 +56,12 @@ class BackgroundJobProcessor:
         
         Args:
             job_id: Database job ID
-            file_path: Path to file in storage
-            filename: Original filename
+            resource_type: Type of resource to ingest (document, website)
             tenant_id: Tenant ID
             knowledge_base_id: Target knowledge base ID
-            chunk_size: Override chunk size
-            chunk_overlap: Override chunk overlap
+            urls: List of URLs to ingest
+            file_path: Path to file in storage
+            filename: Original filename
             metadata: Additional metadata
         """
         # Check if job is already running
@@ -75,8 +73,14 @@ class BackgroundJobProcessor:
             # Create task for this job
             task = asyncio.create_task(
                 self._process_job_internal(
-                    job_id, file_path, filename, tenant_id, 
-                    knowledge_base_id, chunk_size, chunk_overlap, metadata
+                    job_id=job_id,
+                    resource_type=resource_type,
+                    tenant_id=tenant_id,
+                    knowledge_base_id=knowledge_base_id,
+                    urls=urls,
+                    file_path=file_path,
+                    filename=filename,
+                    metadata=metadata
                 )
             )
             self._running_jobs[job_id] = task
@@ -91,17 +95,17 @@ class BackgroundJobProcessor:
     async def _process_job_internal(
         self,
         job_id: int,
-        file_path: str,
-        filename: str,
+        resource_type: str,
         tenant_id: int,
         knowledge_base_id: int,
-        chunk_size: Optional[int] = None,
-        chunk_overlap: Optional[int] = None,
+        urls: Optional[List[str]] = None,
+        file_path: Optional[str] = None,
+        filename: Optional[str] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Internal job processing logic."""
         
-        logger.info(f"Starting background processing for job {job_id}: {filename}")
+        logger.info(f"Starting background processing for job {job_id}: filename={filename}, file_path={file_path}, resource_type={resource_type}, urls={urls}")
         
         # Update job status to processing
         await self._update_job_status(
@@ -112,56 +116,60 @@ class BackgroundJobProcessor:
         
         try:
             # Step 1: Validate file exists and is processable
-            logger.info(f"Validating file for job {job_id}: {file_path}")
             
-            validation_result = await self.file_validation_service.validate_file(
-                filename=filename,
-                file_path=file_path,
-                check_existence=True
-            )
-            
-            if not validation_result.is_valid:
-                raise KBEventHandlerException(
-                    message=f"File validation failed: {', '.join(validation_result.errors)}",
-                    error_code="FILE_VALIDATION_FAILED",
-                    status_code=400
+            if resource_type == "document":
+                logger.info(f"Validating file for job {job_id}: filename={filename}, file_path={file_path}")
+
+                validation_result = await self.file_validation_service.validate_file(
+                    filename=filename,
+                    file_path=file_path,
+                    check_existence=True
                 )
-            
-            # Step 2: Download file to temporary location
-            logger.info(f"Downloading file for job {job_id}: {file_path}")
-            
-            async with self.temp_file_manager.temp_file_context(file_path, filename) as temp_path:
-                
-                # Step 3: Additional validation on downloaded file
-                if not await self.ingestion_service.validate_file_for_ingestion(temp_path, filename):
+                if not validation_result.is_valid:
                     raise KBEventHandlerException(
-                        message=f"File cannot be processed by ingestion pipeline: {filename}",
-                        error_code="INGESTION_VALIDATION_FAILED",
+                        message=f"File validation failed: {', '.join(validation_result.errors)}",
+                        error_code="FILE_VALIDATION_FAILED",
                         status_code=400
                     )
                 
-                # Step 4: Process file through ingestion pipeline
-                logger.info(f"Processing file through ingestion pipeline for job {job_id}")
+                # validate file size
+                validation_result = await self.file_validation_service.validate_file_size_only(file_path)
+                if not validation_result.is_valid:
+                    raise KBEventHandlerException(
+                        message=f"File size validation failed: {', '.join(validation_result.errors)}",
+                        error_code="FILE_SIZE_VALIDATION_FAILED",
+                        status_code=400
+                    )
                 
-                ingestion_result = await self.ingestion_service.ingest_file(
-                    temp_file_path=temp_path,
-                    filename=filename,
+                # Call the document ingestion service
+                ingestion_result = await self.document_ingestion_service.ingest_resource(
+                    job_id=job_id,
+                    resource_type="document",
                     tenant_id=tenant_id,
                     knowledge_base_id=knowledge_base_id,
-                    chunk_size=chunk_size,
-                    chunk_overlap=chunk_overlap,
+                    file_path=file_path,
+                    filename=filename,
                     metadata=metadata
                 )
-                
-                # Step 5: Update job with results
-                await self._complete_job(job_id, ingestion_result)
-                
-                # Temp file automatically cleaned up by context manager
+
+            elif resource_type == "website":
+                # verify if the urls are valid
+                validation_result = FileValidationResult(is_valid=True)
+                ingestion_result = await self.website_ingestion_service.ingest_resource(
+                    job_id=job_id,
+                    resource_type="website",
+                    tenant_id=tenant_id,
+                    knowledge_base_id=knowledge_base_id,
+                    urls=urls,
+                    metadata=metadata
+                )
+
+            await self._complete_job(job_id, ingestion_result)
             
             logger.info(f"Successfully completed job {job_id}: {filename}")
             
         except Exception as e:
-            logger.error(f"Job {job_id} failed: {str(e)}")
+            logger.error(f"Job {job_id} failed: {str(e)}", exc_info=True)
             await self._fail_job(job_id, str(e))
     
     async def _update_job_status(
@@ -175,19 +183,13 @@ class BackgroundJobProcessor:
     ) -> None:
         """Update job status in database."""
         try:
-            update_data = {"status": status}
-            
-            if started_at:
-                update_data["started_at"] = started_at
-            if completed_at:
-                update_data["completed_at"] = completed_at
-            if error_message:
-                update_data["error_message"] = error_message
-            if result_metadata:
-                update_data["result_metadata"] = result_metadata
-            
-            job_update = KBJobUpdate(**update_data)
-            await self.job_repository.update(job_id, job_update)
+            job_update = KBJobUpdate(
+                status=status,
+                started_at=started_at.isoformat() if started_at else None,
+                completed_at=completed_at.isoformat() if completed_at else None,
+                error_message=error_message,
+            )
+            await self.job_repository.update_job(job_id, job_update)
             
             logger.debug(f"Updated job {job_id} status to {status}")
             

@@ -155,8 +155,8 @@ async def main():
     firecrawl_reader = get_firecrawl_reader()
     
     # Run document ingestion example
-    # await document_ingestion_example(vector_store)
-    # print()
+    await document_ingestion_example(vector_store)
+    print()
     
     # Run website ingestion example
     # await website_ingestion_example(vector_store, firecrawl_reader)
