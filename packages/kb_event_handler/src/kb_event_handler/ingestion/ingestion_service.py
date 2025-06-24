@@ -11,6 +11,7 @@ from kb_event_handler.ingestion.schemas import IngestionResult
 from kb_event_handler.ingestion.interfaces.ipipeline_factory import IIngestionPipelineFactory
 from kb_ingestion.interfaces.ingestion import IIngestionPipeline
 from kb_ingestion.models import IngestionResult as PipelineIngestionResult
+from kb_ingestion.models.requests import WebsiteWrapper
 
 logger = logging.getLogger(__name__)
 
@@ -122,12 +123,63 @@ class WebsiteIngestionService(IIngestionService):
                               filename: Optional[str] = None, 
                               metadata: Optional[Dict[str, Any]] = None) -> IngestionResult:
         """Ingest a website into the knowledge base."""
+        start_time = time.time()
+        try:
+            logger.info(f"Starting ingestion for website: {urls} (tenant: {tenant_id}, kb: {knowledge_base_id})")
+
+            # prepare the website wrapper
+            website_wrapper = WebsiteWrapper(
+                urls=urls,
+                metadata={
+                    "tenant_id": tenant_id,
+                    "knowledge_base_id": knowledge_base_id,
+                    **(metadata or {})
+                }
+            )
+
+            # get the pipeline
+            pipeline: IIngestionPipeline = self.pipeline_factory.get_pipeline(resource_type)
+
+            # ingest the website
+            ingestion_result: PipelineIngestionResult = await pipeline.ingest(website_wrapper)
+
+            processing_time = time.time() - start_time
+
+            # Convert to our schema
+            result = IngestionResult(
+                success=ingestion_result.success,
+                node_count=len(ingestion_result.chunk_ids) if ingestion_result.chunk_ids else 0,
+                processing_time_seconds=processing_time,
+                error_message=str(ingestion_result.error) if not ingestion_result.success and ingestion_result.error else None,
+                metadata={
+                    "node_ids": ingestion_result.chunk_ids,
+                    "tenant_id": tenant_id,
+                    "knowledge_base_id": knowledge_base_id,
+                    **ingestion_result.metadata
+                }
+            )
             
-        return IngestionResult(
-            success=True,
-            node_count=0,
-            processing_time_seconds=0,
-            error_message="Not implemented",
-            metadata={}
-        )
+            if result.success:
+                logger.info(f"Successfully ingested {urls}: {result.node_count} chunks in {processing_time:.2f}s")
+            else:
+                logger.error(f"Failed to ingest {urls}: {result.error_message}")
+            
+            return result
+        except Exception as e:
+            processing_time = time.time() - start_time
+            error_message = f"Ingestion failed for {urls}: {str(e)}"
+            logger.error(error_message)
+            
+            return IngestionResult(
+                success=False,
+                node_count=0,
+                processing_time_seconds=processing_time,
+                error_message=error_message,
+                metadata={
+                    "tenant_id": tenant_id,
+                    "knowledge_base_id": knowledge_base_id,
+                    "error_type": type(e).__name__,
+                    **(metadata or {})
+                }
+            )
 
