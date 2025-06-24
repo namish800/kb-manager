@@ -1,5 +1,6 @@
 import asyncio
 import io
+import json
 import time
 from typing import List
 from uuid import uuid4
@@ -49,6 +50,10 @@ class LlamaIndexDocumentIngestionToPinecone(IIngestionPipeline):
         try:
             # Create a Document from the FileWrapper
             documents = await self._parse_document(source)
+
+            # Add metadata from the FileWrapper to the documents
+            for document in documents:
+                document.metadata.update(source.metadata)
             
             # Run the ingestion pipeline
             nodes = await self.pipeline.arun(documents=documents)

@@ -61,7 +61,6 @@ class DocumentIngestionService(IIngestionService):
                         "tenant_id": tenant_id,
                         "knowledge_base_id": knowledge_base_id,
                         "original_filename": filename,
-                        **(metadata or {})
                     }
                 )
 
@@ -133,7 +132,6 @@ class WebsiteIngestionService(IIngestionService):
                 metadata={
                     "tenant_id": tenant_id,
                     "knowledge_base_id": knowledge_base_id,
-                    **(metadata or {})
                 }
             )
 

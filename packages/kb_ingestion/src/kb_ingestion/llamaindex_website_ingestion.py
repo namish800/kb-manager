@@ -100,5 +100,7 @@ class LlamaIndexWebsiteIngestionToPinecone(IIngestionPipeline):
         documents = []
         for url in source.urls:
             scrape_result = self.firecrawl_reader.scrape_url(url, formats=['markdown', 'html'])
-            documents.append(Document(text=scrape_result.markdown, metadata=scrape_result.metadata))
+            metadata = source.metadata
+            metadata.update(scrape_result.metadata)
+            documents.append(Document(text=scrape_result.markdown, metadata=metadata))
         return documents

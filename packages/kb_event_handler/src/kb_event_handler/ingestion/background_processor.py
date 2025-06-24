@@ -208,11 +208,12 @@ class BackgroundJobProcessor:
         self,
         knowledge_base_id: int,
         tenant_id: int,
-        status: str
+        status: str,
+        node_count: Optional[int] = None
     ) -> None:
         """Update knowledge base status."""
         try:
-            kb_update = KnowledgeBaseUpdate(status=status)
+            kb_update = KnowledgeBaseUpdate(status=status, document_count=node_count)
             await self.knowledge_base_repository.update_kb(knowledge_base_id, kb_update, tenant_id)
             
             logger.debug(f"Updated knowledge base {knowledge_base_id} status to {status}")
@@ -240,7 +241,7 @@ class BackgroundJobProcessor:
         
         # Update knowledge base status
         kb_status = "completed" if result.success else "failed"
-        await self._update_knowledge_base_status(knowledge_base_id, tenant_id, kb_status)
+        await self._update_knowledge_base_status(knowledge_base_id, tenant_id, kb_status, result.node_count)
     
     async def _fail_job(self, job_id: int, knowledge_base_id: int, tenant_id: int, error_message: str) -> None:
         """Mark job as failed with error message."""
