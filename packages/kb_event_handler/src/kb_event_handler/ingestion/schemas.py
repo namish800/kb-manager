@@ -22,6 +22,7 @@ class IngestionRequest(BaseModel):
     file_path: Optional[str] = Field(None, description="Path to file in storage")
     filename: Optional[str] = Field(None, description="Original filename")
     knowledge_base_id: int = Field(..., description="Target knowledge base ID")
+    kb_key: str = Field(..., description="Target knowledge base key")
     mime_type: Optional[str] = Field(None, description="File MIME type")
     
     # Optional processing parameters
@@ -36,6 +37,7 @@ class IngestionRequest(BaseModel):
                 "file_path": "tenant_123/kb_456/documents/report.pdf",
                 "filename": "quarterly_report.pdf",
                 "knowledge_base_id": 456,
+                "kb_key": "uuid",
                 "mime_type": "application/pdf"
             }
         }

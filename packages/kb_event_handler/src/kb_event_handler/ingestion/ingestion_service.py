@@ -60,6 +60,7 @@ class DocumentIngestionService(IIngestionService):
                     metadata={
                         "tenant_id": tenant_id,
                         "knowledge_base_id": knowledge_base_id,
+                        "kb_key": metadata.get("kb_key", ""),
                         "original_filename": filename,
                     }
                 )
@@ -132,6 +133,7 @@ class WebsiteIngestionService(IIngestionService):
                 metadata={
                     "tenant_id": tenant_id,
                     "knowledge_base_id": knowledge_base_id,
+                    "kb_key": metadata.get("kb_key", ""),
                 }
             )
 

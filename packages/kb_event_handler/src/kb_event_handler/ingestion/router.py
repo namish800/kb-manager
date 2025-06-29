@@ -197,6 +197,7 @@ async def ingest_file(
             metadata={
                 "correlation_id": correlation_id,
                 "mime_type": request.mime_type, # this is optional
+                "kb_key": request.kb_key,
             }
         )
         
