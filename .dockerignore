@@ -1,0 +1,79 @@
+# Version control
+.git
+.gitignore
+
+# Environment files with secrets
+.env
+.env.*
+!.env.template
+
+# Python cache and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.Python
+
+# UV cache (will be handled by Docker cache mount)
+.uv/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test files and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Development files
+playground/
+examples/
+tests/
+.cursor/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Large files that shouldn't be in container
+*.pdf
+*.zip
+*.tar.gz
+
+# Keep essential workspace files
+!pyproject.toml
+!uv.lock
+!packages/*/pyproject.toml
+!packages/*/src/

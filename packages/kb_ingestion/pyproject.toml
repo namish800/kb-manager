@@ -15,6 +15,9 @@ dependencies = [
     "llama-index-vector-stores-pinecone>=0.4.5",
 ]
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/kb_ingestion"]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

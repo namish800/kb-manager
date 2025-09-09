@@ -1,0 +1,40 @@
+# Development override for docker-compose
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+version: '3.8'
+
+services:
+  kb-event-handler:
+    build:
+      target: builder  # Use builder stage for development
+    environment:
+      # Override production settings for development
+      - ENVIRONMENT=development
+      - LOG_FORMAT=text
+      - LOG_LEVEL=DEBUG
+      - API_HOST=0.0.0.0
+    env_file:
+      - .env  # Load from local .env file
+    volumes:
+      # Mount source code for hot reloading (if using development server)
+      - ./packages:/app/packages:ro
+      - ./logs:/app/logs:rw
+    command: 
+      # Use uvicorn with reload for development
+      - "python"
+      - "-m" 
+      - "uvicorn"
+      - "kb_event_handler.main:app"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8000"
+      - "--reload"
+      - "--reload-dir"
+      - "/app/packages"
+    restart: "no"  # Don't restart automatically in development
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G

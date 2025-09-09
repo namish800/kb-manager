@@ -122,7 +122,7 @@ if __name__ == "__main__":
     import uvicorn
     
     uvicorn.run(
-        "main:app",
+        app,
         host=settings.api_host,
         port=settings.api_port,
         reload=settings.environment == "development",

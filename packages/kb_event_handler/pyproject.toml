@@ -18,6 +18,9 @@ dependencies = [
     "kb-ingestion",
 ]
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/kb_event_handler"]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
