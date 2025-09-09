@@ -16,8 +16,7 @@ COPY packages/kb_retriever/pyproject.toml packages/kb_retriever/README.md packag
 COPY packages/kb_event_handler/pyproject.toml packages/kb_event_handler/README.md packages/kb_event_handler/
 
 # Install dependencies in virtual environment
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev
+RUN uv sync --frozen --no-dev
 
 # Production stage
 FROM python:3.12-slim
