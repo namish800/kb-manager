@@ -60,7 +60,10 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        env_file_encoding = "utf-8"
         case_sensitive = False
+        # Allow loading from environment even if .env file doesn't exist
+        env_ignore_empty = True
 
 
 # Global settings instance
