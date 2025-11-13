@@ -158,25 +158,38 @@ uv build --package kb-retriever
 uv build
 ```
 
-Monorepo with uv to structure resubale packages
+## Creating New Packages
+
+To structure reusable packages in this monorepo:
+
+```bash
+# Initialize workspace
 uv init --bare
 
-to add a package
-uv init packages/kb_ingestion --name kb-ingestion --lib  
+# Add a new package
+uv init packages/kb_ingestion --name kb-ingestion --lib
+```
 
+## Package Internal Structure
 
+### High-Level Organization
+
+```
 packages/kb_ingestion/src/kb_ingestion/
 ├── interfaces/           # All abstract interfaces
 ├── implementations/      # Concrete implementations
-│   ├── pipelines/       # Document & Website pipelines  
+│   ├── pipelines/       # Document & Website pipelines
 │   ├── processing/      # Text splitters, extractors
 │   ├── services/        # Embedding services
 │   └── storage/         # Vector stores, caches
 ├── models/              # Data classes and DTOs
 ├── exceptions/          # Custom exception hierarchy
 └── factory/             # Dependency injection factory
+```
 
+### Detailed Structure Example
 
+```
 packages/kb_ingestion/src/kb_ingestion/
 ├── __init__.py                    # Main package init
 ├── interfaces/
@@ -213,3 +226,4 @@ packages/kb_ingestion/src/kb_ingestion/
 └── factory/
     ├── __init__.py               # Export factory
     └── pipeline_factory.py       # PipelineFactory
+```
